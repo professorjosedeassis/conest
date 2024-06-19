@@ -1,0 +1,7 @@
+npm i jspdf
+//pesquisar sobre o uso desta biblioteca
+
+const { jsPDF } = require("jspdf")
+const doc_file = new jsPDF()
+doc_file.text('Olá PDF', 15, 15)
+doc_file.save('teste.pdf')

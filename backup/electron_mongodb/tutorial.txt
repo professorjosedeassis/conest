@@ -1,0 +1,37 @@
+Ligação do banco de dados mongodb com o electron
+
+- Driver
+- URL (caminho para chegar até o banco de dados)
+- autenticação
+
+____________________________
+Nome do banco
+Coleção
+CRUD (Create Read Update Delete)
+
+1) Instalar o moongose (módulo para simplificar as operações do node com o banco de dados mongodb)
+
+npm i mongoose
+
+2) Criar na raiz o arquivo db.js e escrever o código para conectar e desconectar o banco de dados
+
+3) Criar na camada model a classe modelo para representar o esquema (coleção) do banco de dados.
+ATENÇÃO! O mogoose cria automaticamente o banco e a coleção baseado no esquema da classe modelo
+
+4) Importar o Schema no main
+
+__________________________________________________
+Gerando o executável (.exe)
+Passo 1: Instalar os pacotes:
+npm i --save-dev @electron-forge/plugin-fuses @electron/fuses
+npm i --save-dev @electron-forge/cli
+npm exec --package=@electron-forge/cli -c "electron-forge import"
+
+Passo 2: Executar o script
+npm run make
+
+Obs: O cliente não precisa ter o node ou electron instalado, basta executar o app.
+
+Passo 3: Distribuir o arquivo executável (.exe) que está dentro da pasta out
+
+
