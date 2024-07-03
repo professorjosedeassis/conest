@@ -15,7 +15,7 @@ const conectar = async () => {
         await mongoose.connect(url)
         console.log("MongoDB conectado")
     } catch (error) {
-        console.log(`Problema detectado: ${error.message}`)
+        console.log(`Problema detectado: ${error}`)
     }
 }
 
@@ -25,7 +25,7 @@ const desconectar = async () => {
         await mongoose.disconnect(url)
         console.log("MongoDB desconectado")
     } catch (error) {
-        console.log(`Problema detectado: ${error.message}`)
+        console.log(`Problema detectado: ${error}`)
     }
 }
 

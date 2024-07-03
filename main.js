@@ -1,14 +1,12 @@
-const { ipcMain } = require('electron')
-const { app, BrowserWindow } = require('electron/main')
+const { app, BrowserWindow, ipcMain, Menu, shell } = require('electron')
 const path = require('node:path')
 
 // importar o módulo de conexão
-const {conectar, desconectar} = require('./database.js')
+const { conectar, desconectar } = require('./database.js')
 
-// janela principal (definir o objeto win como variável pública)
-let win
+// Janela principal >>>>>>>>>>>>>>>>>>>>>>>>>>>
 const createWindow = () => {
-    win = new BrowserWindow({
+    const win = new BrowserWindow({
         width: 800,
         height: 600,
         webPreferences: {
@@ -16,23 +14,24 @@ const createWindow = () => {
         }
     })
 
+    // menu personalizado
+    Menu.setApplicationMenu(Menu.buildFromTemplate(template))
+
     win.loadFile('./src/views/index.html')
 }
 
 // iniciar a aplicação
 app.whenReady().then(() => {
 
-    // status de conexão com o banco de dados
-    ipcMain.on('send-message', (event, message) => {
-        console.log(`<<< ${message}`)
-        statusConexao()
+    // conexão com o banco de dados
+    ipcMain.on('db-conect', () => {
+        conectar()
     })
 
     // desconectar do banco ao encerrar a janela
     app.on('before-quit', async () => {
         await desconectar()
     })
-
 
     createWindow()
 
@@ -49,13 +48,64 @@ app.on('window-all-closed', () => {
     }
 })
 
-//-------------------------------------------------
-// função que verifica o status da conexão
-const statusConexao = async () => {
-    try {
-        await conectar()
-        win.webContents.send('db-status', "Banco de dados conectado.")
-    } catch (error) {
-        win.webContents.send('db-status', `Erro de conexão: ${error.message}`)
+// template do menu
+const template = [
+    {
+        label: 'Cadastro',
+        submenu: [
+            {
+                label: 'Fornecedores',
+                //click: () => suplierWindow()
+            },
+            {
+                label: 'Sair',
+                click: () => app.quit(),
+                accelerator: 'Alt+F4'
+            }
+        ]
+    },
+    {
+        label: 'Exibir',
+        submenu: [
+            {
+                label: 'Recarregar',
+                role: 'reload'
+            },
+            {
+                label: 'Ferramentas do desenvolvedor',
+                role: 'toggleDevTools'
+            },
+            {
+                type: 'separator'
+            },
+            {
+                label: 'Aplicar zoom',
+                role: 'zoomIn'
+            },
+            {
+                label: 'Reduzir',
+                role: 'zoomOut'
+            },
+            {
+                label: 'Restaurar o zoom padrão',
+                role: 'resetZoom'
+            }
+        ]
+    },
+    {
+        label: 'Ajuda',
+        submenu: [
+            {
+                label: 'Projeto',
+                click: () => shell.openExternal('https://joseassis.com.br/projetos.html')
+            },
+            {
+                type: 'separator'
+            },
+            {
+                label: 'Sobre',
+                //click: () => aboutWindow()
+            }
+        ]
     }
-}
+]

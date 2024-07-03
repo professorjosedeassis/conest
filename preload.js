@@ -1,8 +1,20 @@
 const { ipcRenderer } = require('electron')
 
-// status de conexão (verificar se o banco de dados está conectado)
-ipcRenderer.send('send-message', "Status do banco de dados:")
-
-ipcRenderer.on('db-status', (event, status) => {
-    console.log(status)
+// inserir data no rodapé da tela principal
+window.addEventListener('DOMContentLoaded', () => {
+    const dataAtual = document.getElementById('dataAtual').innerHTML = obterData()
 })
+
+function obterData() {
+    const data = new Date()
+    const options = {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    }
+    return data.toLocaleDateString('pt-BR', options)
+}
+
+//conexão com o banco de dados
+ipcRenderer.send('db-conect')

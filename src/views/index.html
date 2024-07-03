@@ -1,13 +1,33 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- evitar ataques de Cross Site Scripting (injeção de dados)-->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'">
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="../public/css/bootstrap.min.css">
+
+    <!-- css personalizado (por último)-->
+    <link rel="stylesheet" href="../public/css/style.css">
+
     <title>CONEST - Controle de estoque</title>
 </head>
+
 <body>
-    <h1>CONEST</h1>
+    <div class="container">
+    </div>
+    <footer>
+        <p id="dataAtual"></p>
+        <img src="../public/img/dboff.png" alt="dboff" id="status">
+    </footer>
+
+
+    <!-- bootstrap -->
+    <script src="../public/js/bootstrap.min.js"></script>
 
     <script src="renderer.js"></script>
 </body>
+
 </html>
