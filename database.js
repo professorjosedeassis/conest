@@ -47,5 +47,5 @@ const desconectar = async () => {
     }
 }
 
-// exportar para o main os métodos conectar e desconectar e a variável isConnected
+// exportar para o main os métodos dbStatus e desconectar
 module.exports = { dbStatus, desconectar }
