@@ -1,4 +1,4 @@
-const { ipcRenderer } = require('electron')
+const { contextBridge, ipcRenderer } = require('electron')
 
 // inserir data no rodapé da tela principal
 window.addEventListener('DOMContentLoaded', () => {
@@ -18,3 +18,8 @@ function obterData() {
 
 //conexão com o banco de dados
 ipcRenderer.send('db-conect')
+
+// processos
+contextBridge.exposeInMainWorld('api', {
+    openClient: () => ipcRenderer.send('open-client')
+})
