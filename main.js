@@ -2,11 +2,14 @@ const { app, BrowserWindow, ipcMain, Menu, shell, nativeTheme } = require('elect
 const path = require('node:path')
 
 // importar o módulo de conexão
-const { dbStatus, desconectar } = require('./database.js')
+const { dbConnect, desconectar } = require('./database.js')
 // status de conexão do banco de dados (No MongoDB é mais eficiente manter uma única conexão aberta durante todo o tempo de vida do aplicativo e usá-la conforme necessário. Fechar e reabrir a conexão frequentemente pode aumentar a sobrecarga e causar problemas de desempenho)
 // a função dbStatus garante que a conexão com o banco de dados seja estabelecida apenas uma vez e reutilizada.
 // a variável abaixo é usada para garantir que o sistema inicie com o banco de dados desconectado
 let dbCon = null
+
+// importar o Schema (models)
+const clienteModel = require('./src/models/Cliente.js')
 
 // Janela principal >>>>>>>>>>>>>>>>>>>>>>>>>>>
 const createWindow = () => {
@@ -55,8 +58,9 @@ const clientWindow = () => {
 app.whenReady().then(() => {
 
     // conexão com o banco de dados
-    ipcMain.on('db-conect', async () => {
-        dbCon = await dbStatus()
+    ipcMain.on('db-connect', async (event, message) => {       
+            dbCon = await dbConnect()
+            event.reply('db-message', "conectado")       
     })
 
     // desconectar do banco ao encerrar a aplicação
@@ -141,3 +145,20 @@ const template = [
         ]
     }
 ]
+
+// CRud Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ipcMain.on('new-client', async (event, cliente) => {
+    console.log(cliente)
+    try {
+        const novoCliente = new clienteModel({
+            nomeCliente: cliente.nomeCli,
+            foneCliente: cliente.foneCli,
+            emailCliente: cliente.emailCli
+        })
+        console.log(novoCliente)
+        await novoCliente.save()
+    } catch (error) {
+        console.log(error)
+    }
+})
+//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

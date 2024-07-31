@@ -1,25 +1,11 @@
 const { contextBridge, ipcRenderer } = require('electron')
 
-// inserir data no rodapé da tela principal
-window.addEventListener('DOMContentLoaded', () => {
-    const dataAtual = document.getElementById('dataAtual').innerHTML = obterData()
-})
-
-function obterData() {
-    const data = new Date()
-    const options = {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    }
-    return data.toLocaleDateString('pt-BR', options)
-}
-
-//conexão com o banco de dados
-ipcRenderer.send('db-conect')
+// conexão com o banco de dados
+ipcRenderer.send('db-connect')
 
 // processos
 contextBridge.exposeInMainWorld('api', {
-    openClient: () => ipcRenderer.send('open-client')
+    openClient: () => ipcRenderer.send('open-client'),
+    dbMessage: (message) => ipcRenderer.on('db-message', message),
+    newClient: (cliente) => ipcRenderer.send('new-client', cliente)
 })

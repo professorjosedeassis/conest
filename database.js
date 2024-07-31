@@ -7,13 +7,13 @@
 const mongoose = require('mongoose')
 
 // definir o banco de dados (copiar a string do compass)
-let url = "mongodb+srv://admin:dbAdmin2024@clusterconest.fbi5v6f.mongodb.net/dbconest"
+let url = "mongodb+srv://admin:Senac123@clusterconest.7mfofxg.mongodb.net/dbconest"
 
 // Variável para armazenar o status da conexão
 let isConnected = false
 
 // status da conexão
-const dbStatus = async () => {
+const dbConnect = async () => {
     if (isConnected === false) {
         await conectar()
     }
@@ -27,7 +27,6 @@ const conectar = async () => {
             await mongoose.connect(url)
             isConnected = true
             console.log("MongoDB conectado")
-            return (isConnected)
         } catch (error) {
             console.log(`Problema detectado: ${error}`)
         }
@@ -39,7 +38,7 @@ const desconectar = async () => {
     if (isConnected === true) {
         try {
             await mongoose.disconnect(url)
-            isConnected = false            
+            isConnected = false
             console.log("MongoDB desconectado")
         } catch (error) {
             console.log(`Problema detectado: ${error}`)
@@ -48,4 +47,4 @@ const desconectar = async () => {
 }
 
 // exportar para o main os métodos dbStatus e desconectar
-module.exports = { dbStatus, desconectar }
+module.exports = { dbConnect, desconectar }
