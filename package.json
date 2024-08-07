@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/professorjosedeassis/conest#readme",
   "devDependencies": {
-    "electron": "^31.0.1"
+    "electron": "^31.3.1"
   },
   "dependencies": {
     "mongoose": "^8.4.1"

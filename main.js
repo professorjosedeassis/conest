@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, Menu, shell, nativeTheme } = require('electron')
+const { app, BrowserWindow, ipcMain, Menu, shell, nativeTheme, dialog } = require('electron')
 const path = require('node:path')
 
 // importar o módulo de conexão
@@ -58,9 +58,9 @@ const clientWindow = () => {
 app.whenReady().then(() => {
 
     // conexão com o banco de dados
-    ipcMain.on('db-connect', async (event, message) => {       
-            dbCon = await dbConnect()
-            event.reply('db-message', "conectado")       
+    ipcMain.on('db-connect', async (event, message) => {
+        dbCon = await dbConnect()
+        event.reply('db-message', "conectado")
     })
 
     // desconectar do banco ao encerrar a aplicação
@@ -157,8 +157,57 @@ ipcMain.on('new-client', async (event, cliente) => {
         })
         console.log(novoCliente)
         await novoCliente.save()
+        dialog.showMessageBox({
+            type: 'info',
+            title: "Aviso",
+            message: "Cliente adicionado com sucesso",
+            buttons: ['OK']
+        })
     } catch (error) {
         console.log(error)
     }
 })
+//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+// CRud Read >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// Aviso (Busca: Preenchimento de campo obrigatório)
+ipcMain.on('dialog-infoSearchClient', (event) => {
+    dialog.showMessageBox({
+        type: 'warning',
+        title: 'Atenção!',
+        message: 'Preencha o nome do cliente',
+        buttons: ['OK']
+    })
+    event.reply('focus-searchClient') //UX
+})
+// Busca do cliente pelo nome
+ipcMain.on('search-client', async (event, nomeCliente) => {
+    console.log(nomeCliente) //receber pedido de busca do form
+    try {
+        const dadosCliente = await clienteModel.find({ nomeCliente: new RegExp(nomeCliente, 'i') }) // buscar no banco 
+        console.log(dadosCliente)
+        //UX
+        if (dadosCliente.length === 0) {
+            dialog.showMessageBox({
+                type: 'question',
+                title: 'Clientes',
+                message: 'Cliente não cadastrado.\nDeseja cadastrar este cliente?',
+                buttons: ['Não', 'Sim']
+            }).then((result) => {
+                if (result.response === 1) {
+                    event.reply('set-nameClient')
+                } else {
+                    event.reply('clear-search')
+                }
+            })
+        } else {
+            event.reply('data-client', JSON.stringify(dadosCliente)) //envio dos dados do cliente ao renderizador (cliente.js)
+        }
+
+    } catch (error) {
+        console.log(error)
+    }
+})
+
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
