@@ -11,13 +11,21 @@ document.addEventListener('DOMContentLoaded', () => {
     btnDelete.disabled = true
 })
 
-// Alterar comportamento do Enter ao enviar os dados do formulário
-document.getElementById("frmClient").addEventListener("keydown", function (event) {
+// Função nomeada para manipular o evento de tecla Enter
+function teclaEnter(event) {
     if (event.key === "Enter") {
-        event.preventDefault() // desativar o comportamento padrão
-        buscarCliente() //usar o Enter para executar uma função
+        event.preventDefault(); // desativar o comportamento padrão
+        buscarCliente(); // usar o Enter para executar uma função
     }
-})
+}
+
+// Adiciona o manipulador de evento para tecla Enter
+document.getElementById("frmClient").addEventListener("keydown", teclaEnter);
+
+// Função para remover o manipulador de evento
+function restaurarTeclaEnter() {
+    document.getElementById("frmClient").removeEventListener("keydown", teclaEnter);
+}
 
 // CRUD - Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 // captura dos inputs do formulário
@@ -59,9 +67,12 @@ api.focusClient(() => {
 })
 // Setar Nome do cliente - UX
 api.nameClient(() => {
+    // Restaurar o comportamento padrão da tecla Enter
+    restaurarTeclaEnter()
     let setarNomeCliente = document.getElementById('inputSearch').value
     document.getElementById('inputNameClient').value = setarNomeCliente
     document.getElementById('inputSearch').value = ""
+    document.getElementById('inputSearch').disabled = true
     document.getElementById('inputSearch').blur() //remover o foco
     btnRead.disabled = true
     btnCreate.disabled = false
@@ -83,7 +94,8 @@ api.dataClient((event, dadosCliente) => {
         document.getElementById('inputEmailClient').value = c.emailCliente
         //limpar caixa de busca
         document.getElementById("inputSearch").value = ""
-        //remover o foco da caixa de busca
+        //remover o foco e desativar a caixa de busca
+        document.getElementById('inputSearch').disabled = true
         document.getElementById("inputSearch").blur()
         //desativar os botão adicionar e buscar
         document.getElementById("btnCreate").disabled = true
@@ -97,11 +109,18 @@ api.dataClient((event, dadosCliente) => {
 
 
 // Reset Form >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+api.resetForm((args) => {
+    resetForm()
+})
+
 function resetForm() {
+    formCliente.reset()
     document.getElementById('inputSearch').focus()
+    document.getElementById('inputSearch').disabled = false
     btnCreate.disabled = true
     btnRead.disabled = false
     btnUpdate.disabled = true
-    btnDelete.disabled = true
+    btnDelete.disabled = true    
 }
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

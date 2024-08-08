@@ -163,6 +163,7 @@ ipcMain.on('new-client', async (event, cliente) => {
             message: "Cliente adicionado com sucesso",
             buttons: ['OK']
         })
+        event.reply('reset-form')
     } catch (error) {
         console.log(error)
     }
@@ -176,7 +177,7 @@ ipcMain.on('dialog-infoSearchClient', (event) => {
     dialog.showMessageBox({
         type: 'warning',
         title: 'Atenção!',
-        message: 'Preencha o nome do cliente',
+        message: 'Preencha um nome no campo de busca',
         buttons: ['OK']
     })
     event.reply('focus-searchClient') //UX
@@ -193,9 +194,10 @@ ipcMain.on('search-client', async (event, nomeCliente) => {
                 type: 'question',
                 title: 'Clientes',
                 message: 'Cliente não cadastrado.\nDeseja cadastrar este cliente?',
-                buttons: ['Não', 'Sim']
+                defaultId: 0,
+                buttons: ['Sim', 'Nâo']
             }).then((result) => {
-                if (result.response === 1) {
+                if (result.response === 0) {
                     event.reply('set-nameClient')
                 } else {
                     event.reply('clear-search')
