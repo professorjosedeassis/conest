@@ -111,16 +111,16 @@ api.dataClient((event, dadosCliente) => {
 // Reset Form >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 api.resetForm((args) => {
-    resetForm()
+    resetForm()   
 })
 
 function resetForm() {
-    formCliente.reset()
-    document.getElementById('inputSearch').focus()
-    document.getElementById('inputSearch').disabled = false
+    document.getElementById('inputSearch').disabled = false    
+    document.getElementById('inputSearch').focus()    
     btnCreate.disabled = true
     btnRead.disabled = false
     btnUpdate.disabled = true
-    btnDelete.disabled = true    
+    btnDelete.disabled = true
+    document.getElementById("frmClient").addEventListener("keydown", teclaEnter)  
 }
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
