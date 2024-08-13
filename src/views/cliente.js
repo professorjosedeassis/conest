@@ -27,12 +27,14 @@ function restaurarTeclaEnter() {
     document.getElementById("frmClient").removeEventListener("keydown", teclaEnter);
 }
 
-// CRUD - Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 // captura dos inputs do formulário
 let formCliente = document.getElementById('frmClient')
+let idCliente = document.getElementById('inputClientId')
 let nomeCliente = document.getElementById('inputNameClient')
 let foneCliente = document.getElementById('inputPhoneClient')
 let emailCliente = document.getElementById('inputEmailClient')
+
+// CRUD - Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 // evento associado ao botão adicionar
 formCliente.addEventListener("submit", async (event) => {
     event.preventDefault() //evitar o comportamento padrão de envio de um formulário
@@ -63,7 +65,8 @@ function buscarCliente() {
 }
 // Foco no campo de busca - UX
 api.focusClient(() => {
-    document.getElementById('inputSearch').focus()
+    resetForm()
+   // document.getElementById('inputSearch').focus()    
 })
 // Setar Nome do cliente - UX
 api.nameClient(() => {
@@ -71,6 +74,7 @@ api.nameClient(() => {
     restaurarTeclaEnter()
     let setarNomeCliente = document.getElementById('inputSearch').value
     document.getElementById('inputNameClient').value = setarNomeCliente
+    document.getElementById('inputNameClient').focus()
     document.getElementById('inputSearch').value = ""
     document.getElementById('inputSearch').disabled = true
     document.getElementById('inputSearch').blur() //remover o foco
@@ -105,6 +109,19 @@ api.dataClient((event, dadosCliente) => {
         document.getElementById("btnDelete").disabled = false
     })
 })
+//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+//CRUD Update <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+function editarCliente() {   
+    const cliente = {
+        idCli: idCliente.value,
+        nomeCli: nomeCliente.value,
+        foneCli: foneCliente.value,
+        emailCli: emailCliente.value
+    }
+    api.updateClient(cliente)
+    formCliente.reset()
+}
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 

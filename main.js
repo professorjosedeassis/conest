@@ -191,7 +191,7 @@ ipcMain.on('search-client', async (event, nomeCliente) => {
         //UX
         if (dadosCliente.length === 0) {
             dialog.showMessageBox({
-                type: 'question',
+                type: 'warning',
                 title: 'Clientes',
                 message: 'Cliente não cadastrado.\nDeseja cadastrar este cliente?',
                 defaultId: 0,
@@ -211,5 +211,10 @@ ipcMain.on('search-client', async (event, nomeCliente) => {
         console.log(error)
     }
 })
+
+//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+// CRud Update >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
