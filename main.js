@@ -162,8 +162,11 @@ ipcMain.on('new-client', async (event, cliente) => {
             title: "Aviso",
             message: "Cliente adicionado com sucesso",
             buttons: ['OK']
+        }).then((result) => {
+            if (result.response === 0) {
+                event.reply('reset-form')
+            }
         })
-        event.reply('reset-form')
     } catch (error) {
         console.log(error)
     }
@@ -216,5 +219,52 @@ ipcMain.on('search-client', async (event, nomeCliente) => {
 
 
 // CRud Update >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ipcMain.on('update-client', async (event, cliente) => {
+    console.log(cliente)
+    try {
+        const clienteEditado = await clienteModel.findByIdAndUpdate(
+            cliente.idCli, {
+            nomeCliente: cliente.nomeCli,
+            foneCliente: cliente.foneCli,
+            emailCliente: cliente.emailCli
+        },
+            {
+                new: true
+            }
+        )
+        dialog.showMessageBox({
+            type: 'info',
+            title: "Aviso",
+            message: "Dados do cliente alterados com sucesso",
+            buttons: ['OK']
+        }).then((result) => {
+            if (result.response === 0) {
+                event.reply('reset-form')
+            }
+        })
+    } catch (error) {
+        console.log(error)
+    }
+})
+//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+// CRud Delete >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ipcMain.on('delete-client', async (event, idCli) => {
+    console.log(idCli)
+    const { response } = dialog.showMessageBox({
+        type: 'warning',
+        title: "Atenção!",
+        message: "Tem certeza que deseja excluir este cliente?",
+        buttons: ['Cancelar', 'Excluir']
+    })
+    console.log(response)//apoio a lógica
+    if (response === 1) {
+        try {
+            await clienteModel.findByIdAndDelete(idCli)
+            event.reply('reset-form')
+        } catch (error) {
+            console.log(error)
+        }     
+    }
+})
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

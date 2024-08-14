@@ -11,22 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
     btnDelete.disabled = true
 })
 
-// Função nomeada para manipular o evento de tecla Enter
-function teclaEnter(event) {
-    if (event.key === "Enter") {
-        event.preventDefault(); // desativar o comportamento padrão
-        buscarCliente(); // usar o Enter para executar uma função
-    }
-}
-
-// Adiciona o manipulador de evento para tecla Enter
-document.getElementById("frmClient").addEventListener("keydown", teclaEnter);
-
-// Função para remover o manipulador de evento
-function restaurarTeclaEnter() {
-    document.getElementById("frmClient").removeEventListener("keydown", teclaEnter);
-}
-
 // captura dos inputs do formulário
 let formCliente = document.getElementById('frmClient')
 let idCliente = document.getElementById('inputClientId')
@@ -44,8 +28,7 @@ formCliente.addEventListener("submit", async (event) => {
         foneCli: foneCliente.value,
         emailCli: emailCliente.value
     }
-    api.newClient(cliente)
-    formCliente.reset()
+    api.newClient(cliente)    
 })
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -69,9 +52,7 @@ api.focusClient(() => {
    // document.getElementById('inputSearch').focus()    
 })
 // Setar Nome do cliente - UX
-api.nameClient(() => {
-    // Restaurar o comportamento padrão da tecla Enter
-    restaurarTeclaEnter()
+api.nameClient(() => {   
     let setarNomeCliente = document.getElementById('inputSearch').value
     document.getElementById('inputNameClient').value = setarNomeCliente
     document.getElementById('inputNameClient').focus()
@@ -112,7 +93,7 @@ api.dataClient((event, dadosCliente) => {
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 //CRUD Update <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-function editarCliente() {   
+function editarCliente() {    
     const cliente = {
         idCli: idCliente.value,
         nomeCli: nomeCliente.value,
@@ -120,14 +101,19 @@ function editarCliente() {
         emailCli: emailCliente.value
     }
     api.updateClient(cliente)
-    formCliente.reset()
 }
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+//CRUD Delete <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+function excluirCliente() {    
+    let idCli = idCliente.value
+    api.deleteClient(idCli)
+}
+//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 // Reset Form >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
 api.resetForm((args) => {
+    formCliente.reset()
     resetForm()   
 })
 
@@ -137,7 +123,6 @@ function resetForm() {
     btnCreate.disabled = true
     btnRead.disabled = false
     btnUpdate.disabled = true
-    btnDelete.disabled = true
-    document.getElementById("frmClient").addEventListener("keydown", teclaEnter)  
+    btnDelete.disabled = true      
 }
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
