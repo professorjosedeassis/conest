@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'">
+    <link rel="stylesheet" href="../public/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../public/css/style.css">
+    <title>CONEST - Produtos</title>
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="mt-3">Produtos</h1>
+        <br>
+        <form class="row g-3" id="frmProduct">
+            <div class="col-md-6">
+                <input type="text" class="form-control" id="inputProduct" maxlength="30" spellcheck="false">
+                <br>
+            </div>
+
+            <div class="col-md-4">
+                <img src="../public/img/barcode.png" alt="barcode">
+            </div>
+            <hr class="border border-primary border-1 opacity-75">
+            <div class="col-md-6">
+                <label for="idProduct" class="form-label">id</label>
+                <input type="text" class="form-control" id="idProduct">
+            </div>
+            <div class="col-md-6">
+                <label for="barcode" class="form-label">Código de barras</label>
+                <input type="text" class="form-control" id="barcodeProduct">
+            </div>
+            <div class="col-md-7">
+                <label for="nameProduct" class="form-label">Produto</label>
+                <input type="text" class="form-control" id="nameProduct" required maxlength="50" spellcheck="false">                
+            </div>
+            <div class="col-md-5">
+                <img id="imagemProdutoPreview" src="../public/img/camera.png" alt="" >
+            </div>
+            <input type="file" id="imagemProduto">
+            <div class="col-12">
+                <br><br><br>
+                <button type="submit" class="btn btn-success" id="btnCreate">Adicionar</button>
+                <button type="button" class="btn btn-warning" id="btnUpdate">Editar</button>
+                <button type="button" class="btn btn-danger" onclick="" id="btnDelete">Excluir</button>
+                <button type="reset" class="btn" id="btnReset" onclick="clean()"></button>
+            </div>
+        </form>
+
+    </div>
+    <script src="produto.js"></script>
+    <script src="../public/js/bootstrap.min.js"></script>
+</body>
+
+</html>

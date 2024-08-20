@@ -3,6 +3,10 @@ function clientes() {
     api.openClient()
 }
 
+function produtos() {
+    api.openProduct()
+}
+
 // inserir data no rodapé da tela principal
 document.getElementById('dataAtual').innerHTML = obterData()
 

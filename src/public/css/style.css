@@ -16,12 +16,35 @@
     margin-left: 10px;
 }
 
+#btnProduto {
+    width: 64px;
+    height: 45px;
+    background-image: url('../img/barcode.png');
+    background-size: cover;
+    border: none;
+    cursor: pointer;    
+}
+
+
 /* id */
 /*
 #idClient {
     display: none;
 }
 */
+
+
+
+#imagemProdutoPreview {
+    border: 1px solid #dfdfdf;
+    border-radius: 5px;
+    width: 260px;
+    height: 260px;
+    padding: 5px;
+    position: fixed;
+    right: 50px;
+    bottom: 30px;
+}
 
 /* rodapé */
 footer {

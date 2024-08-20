@@ -16,8 +16,9 @@ const createWindow = () => {
     nativeTheme.themeSource = 'light'
     const win = new BrowserWindow({
         width: 800,
-        height: 600,
+        height: 360,      
         icon: './src/public/img/pc.png',
+        resizable: false,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js')
         }
@@ -31,6 +32,10 @@ const createWindow = () => {
     // botões
     ipcMain.on('open-client', () => {
         clientWindow()
+    })
+
+    ipcMain.on('open-product', () => {
+        productWindow()
     })
 }
 
@@ -51,6 +56,26 @@ const clientWindow = () => {
             }
         })
         child.loadFile('./src/views/cliente.html')
+    }
+}
+
+// Janela produtos >>>>>>>>>>>>>>>>>>>>>>>>>>>
+const productWindow = () => {
+    const father = BrowserWindow.getFocusedWindow()
+    if (father) {
+        const child = new BrowserWindow({
+            width: 800,
+            height: 640,
+            icon: './src/public/img/pc.png',
+            autoHideMenuBar: true,
+            resizable: false,
+            parent: father,
+            modal: true,
+            webPreferences: {
+                preload: path.join(__dirname, 'preload.js')
+            }
+        })
+        child.loadFile('./src/views/produto.html')
     }
 }
 
@@ -92,6 +117,16 @@ const template = [
                 label: 'Clientes',
                 accelerator: 'Alt+C',
                 click: () => clientWindow()
+            },
+            {
+                label: 'Fornecedores',
+                accelerator: 'Alt+F',
+                //click: () => suplierWindow()
+            },
+            {
+                label: 'Produtos',
+                accelerator: 'Alt+P',
+                click: () => productWindow()
             },
             {
                 label: 'Sair',
@@ -162,11 +197,8 @@ ipcMain.on('new-client', async (event, cliente) => {
             title: "Aviso",
             message: "Cliente adicionado com sucesso",
             buttons: ['OK']
-        }).then((result) => {
-            if (result.response === 0) {
-                event.reply('reset-form')
-            }
         })
+        event.reply('reset-form')
     } catch (error) {
         console.log(error)
     }
@@ -218,9 +250,10 @@ ipcMain.on('search-client', async (event, nomeCliente) => {
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
-// CRud Update >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// CRUD Update >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ipcMain.on('update-client', async (event, cliente) => {
-    console.log(cliente)
+    console.log(cliente) // teste do passo 2
+
     try {
         const clienteEditado = await clienteModel.findByIdAndUpdate(
             cliente.idCli, {
@@ -237,34 +270,38 @@ ipcMain.on('update-client', async (event, cliente) => {
             title: "Aviso",
             message: "Dados do cliente alterados com sucesso",
             buttons: ['OK']
-        }).then((result) => {
+        }).then((result)=>{
             if (result.response === 0) {
                 event.reply('reset-form')
             }
-        })
+        })       
     } catch (error) {
         console.log(error)
     }
 })
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-// CRud Delete >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-ipcMain.on('delete-client', async (event, idCli) => {
-    console.log(idCli)
-    const { response } = dialog.showMessageBox({
+
+// CRUD Delete >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ipcMain.on('delete-client', (event, idCli) => {
+    console.log(idCli) // teste do passo 2
+    //Importante! Confirmar a ação antes de excluir do banco
+    dialog.showMessageBox({
         type: 'warning',
-        title: "Atenção!",
-        message: "Tem certeza que deseja excluir este cliente?",
-        buttons: ['Cancelar', 'Excluir']
+        title: 'ATENÇÃO!',
+        message: 'Tem certeza que deseja excluir este cliente?',
+        defaultId: 0,
+        buttons: ['Sim', 'Não']
+    }).then(async (result) => {
+        if (result.response === 0) {
+            // Passo 3 (excluir o cliente do banco)
+            try {
+                await clienteModel.findByIdAndDelete(idCli)
+                event.reply('reset-form')
+            } catch (error) {
+                console.log(error)
+            }
+        }
     })
-    console.log(response)//apoio a lógica
-    if (response === 1) {
-        try {
-            await clienteModel.findByIdAndDelete(idCli)
-            event.reply('reset-form')
-        } catch (error) {
-            console.log(error)
-        }     
-    }
 })
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

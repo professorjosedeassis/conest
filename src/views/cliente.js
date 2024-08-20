@@ -11,24 +11,41 @@ document.addEventListener('DOMContentLoaded', () => {
     btnDelete.disabled = true
 })
 
+/*
+// Função nomeada para manipular o evento de tecla Enter
+function teclaEnter(event) {
+    if (event.key === "Enter") {
+        event.preventDefault(); // desativar o comportamento padrão
+        buscarCliente(); // usar o Enter para executar uma função
+    }
+}
+
+// Adiciona o manipulador de evento para tecla Enter
+document.getElementById("frmClient").addEventListener("keydown", teclaEnter);
+
+// Função para remover o manipulador de evento
+function restaurarTeclaEnter() {
+    document.getElementById("frmClient").removeEventListener("keydown", teclaEnter);
+}
+*/
+// CRUD - Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 // captura dos inputs do formulário
 let formCliente = document.getElementById('frmClient')
 let idCliente = document.getElementById('inputClientId')
 let nomeCliente = document.getElementById('inputNameClient')
 let foneCliente = document.getElementById('inputPhoneClient')
 let emailCliente = document.getElementById('inputEmailClient')
-
-// CRUD - Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 // evento associado ao botão adicionar
 formCliente.addEventListener("submit", async (event) => {
     event.preventDefault() //evitar o comportamento padrão de envio de um formulário
-    console.log(formCliente.value, nomeCliente.value, foneCliente.value, emailCliente.value)
+    console.log(nomeCliente.value, foneCliente.value, emailCliente.value)
     const cliente = {
         nomeCli: nomeCliente.value,
         foneCli: foneCliente.value,
         emailCli: emailCliente.value
     }
-    api.newClient(cliente)    
+    api.newClient(cliente)
+    formCliente.reset()
 })
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -48,11 +65,12 @@ function buscarCliente() {
 }
 // Foco no campo de busca - UX
 api.focusClient(() => {
-    resetForm()
-   // document.getElementById('inputSearch').focus()    
+    document.getElementById('inputSearch').focus()
 })
 // Setar Nome do cliente - UX
-api.nameClient(() => {   
+api.nameClient(() => {
+    // Restaurar o comportamento padrão da tecla Enter
+    //restaurarTeclaEnter()
     let setarNomeCliente = document.getElementById('inputSearch').value
     document.getElementById('inputNameClient').value = setarNomeCliente
     document.getElementById('inputNameClient').focus()
@@ -92,37 +110,46 @@ api.dataClient((event, dadosCliente) => {
 })
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-//CRUD Update <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-function editarCliente() {    
+
+// CRud Update >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+function editarCliente() {
+    //Passo 1 do slide
     const cliente = {
         idCli: idCliente.value,
         nomeCli: nomeCliente.value,
         foneCli: foneCliente.value,
         emailCli: emailCliente.value
     }
+    console.log(cliente) // teste do passo 1
+    //Passo 2: Enviar o objeto cliente ao main.js
     api.updateClient(cliente)
 }
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-//CRUD Delete <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-function excluirCliente() {    
-    let idCli = idCliente.value
-    api.deleteClient(idCli)
+
+// CRud Delete >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+function excluirCliente() {
+    let idCli = idCliente.value // Passo 1 (obter o id do cliente)
+    console.log(idCli) // teste do passo 1
+    api.deleteClient(idCli) // Passo 2 - enviar o id do cliente ao main
 }
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+
 // Reset Form >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 api.resetForm((args) => {
-    formCliente.reset()
     resetForm()   
 })
 
 function resetForm() {
+    formCliente.reset()
     document.getElementById('inputSearch').disabled = false    
     document.getElementById('inputSearch').focus()    
     btnCreate.disabled = true
     btnRead.disabled = false
     btnUpdate.disabled = true
-    btnDelete.disabled = true      
+    btnDelete.disabled = true
+    //document.getElementById("frmClient").addEventListener("keydown", teclaEnter)  
 }
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

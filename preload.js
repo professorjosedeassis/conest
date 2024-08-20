@@ -6,6 +6,7 @@ ipcRenderer.send('db-connect')
 // processos
 contextBridge.exposeInMainWorld('api', {
     openClient: () => ipcRenderer.send('open-client'),
+    openProduct: () => ipcRenderer.send('open-product'),
     dbMessage: (message) => ipcRenderer.on('db-message', message),
     newClient: (cliente) => ipcRenderer.send('new-client', cliente),
     infoSearchClient: () => ipcRenderer.send('dialog-infoSearchClient'),
