@@ -1,15 +1,25 @@
 // botões
+function fechar() {
+    api.fecharJanela()
+}
+
 function clientes() {
-    api.openClient()
+    api.janelaClientes()
+}
+
+function fornecedores() {
+    api.janelaFornecedores()
 }
 
 function produtos() {
-    api.openProduct()
+    api.janelaProdutos()
 }
 
-// inserir data no rodapé da tela principal
-document.getElementById('dataAtual').innerHTML = obterData()
+function relatorios() {
+    api.janelaRelatorios()
+}
 
+// inserção da data no rodapé
 function obterData() {
     const data = new Date()
     const options = {
@@ -21,10 +31,12 @@ function obterData() {
     return data.toLocaleDateString('pt-BR', options)
 }
 
-// ícone do banco de dados
-api.dbMessage((event, message) => {
-    console.log(message)
-    if(message === "conectado") {
+document.getElementById('dataAtual').innerHTML = obterData()
+
+// Ícone de status do banco de dados
+api.status((event, message) => {
+    // validação e troca do ícone
+    if (message === "conectado") {             
         document.getElementById('iconDB').src = "../public/img/dbon.png"
     } else {
         document.getElementById('iconDB').src = "../public/img/dboff.png"

@@ -1,26 +1,25 @@
 {
   "name": "conest",
   "version": "1.0.0",
-  "description": "Sistema para gestão de estoque",
+  "description": "Sistema para gestão de estoque no comércio de bens e serviços.",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "electron ."
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/professorjosedeassis/conest.git"
+    "url": "git+https://github.com/professorjosedeassis/conestv3.git"
   },
   "author": "Professor José de Assis",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/professorjosedeassis/conest/issues"
+    "url": "https://github.com/professorjosedeassis/conestv3/issues"
   },
-  "homepage": "https://github.com/professorjosedeassis/conest#readme",
+  "homepage": "https://github.com/professorjosedeassis/conestv3#readme",
   "devDependencies": {
-    "electron": "^31.3.1"
+    "electron": "^33.0.2"
   },
   "dependencies": {
-    "mongoose": "^8.4.1"
+    "mongoose": "^8.8.1"
   }
 }

@@ -1,37 +1,25 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- evitar ataques de Cross Site Scripting (injeção de dados)-->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'">
-    <!-- bootstrap -->
+    <title>Conest</title>
     <link rel="stylesheet" href="../public/css/bootstrap.min.css">
-
-    <!-- css personalizado (por último)-->
     <link rel="stylesheet" href="../public/css/style.css">
-
-    <title>CONEST - Controle de estoque</title>
 </head>
-
 <body>
     <div class="container button">
-        <img src="../public/img/client.png" alt="clientes" onclick="clientes()" title="Clientes">
-        <img src="../public/img/suplier.png" alt="fornecedores" onclick="fornecedores()" title="Fornecedores">
-        <img src="../public/img/product.png" alt="produtos" onclick="produtos()" title="Produtos">
-        <img src="../public/img/report.png" alt="relatórios" onclick="relatorios()" title="Relatórios">
+        <img src="../public/img/client.png" alt="clientes" title="Clientes" onclick="clientes()">
+        <img src="../public/img/supplier.png" alt="fornecedores" title="Fornecedores" onclick="fornecedores()">
+        <img src="../public/img/product.png" alt="produtos" title="Produtos" onclick="produtos()">
+        <img src="../public/img/report.png" alt="relatórios" title="Relatórios" onclick="relatorios()">
     </div>
     <footer>
         <p id="dataAtual"></p>
-        <img src="../public/img/dboff.png" alt="database icon" id="iconDB">
+        <img src="../public/img/dboff.png" alt="icone do banco de dados" id="iconDB">
     </footer>
-
-
-    <!-- bootstrap -->
     <script src="../public/js/bootstrap.min.js"></script>
-
     <script src="renderer.js"></script>
 </body>
-
 </html>

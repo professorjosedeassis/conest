@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'">
+    <title>Conest - Fornecedores</title>
+    <link rel="stylesheet" href="../public/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../public/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-3">Fornecedores</h1>
+        <form id="frmSupplier" class="mt-2 row g-3">
+
+            <!-- Buscar fornecedor -->
+            <div class="col-md-6">
+                <input type="text" class="form-control" id="searchSupplier" maxlength="30" spellcheck="false">
+            </div>
+            <div class="col-md-4">
+                <button class="btn btn-primary" id="btnRead">Buscar</button>
+            </div>
+
+            <hr class="mt-4 border border-primary border -1">
+
+            <!-- Id do fornecedor (oculto) -->
+            <div class="col-md-6" id="idClient">
+                <input class="form-control" type="text" id="inputSupplier" placeholder="id">
+            </div>
+
+            <!-- Nome do fornecedor -->
+            <div class="col-md-8">
+                <label for="inputNameSupplier" class="form-label">Razão Social</label>
+                <input class="form-control" type="text" id="inputNameSupplier" spellcheck="false" required maxlength="50">
+            </div>
+
+            <!-- Fone do fornecedor -->
+            <div class="col-md-4">
+                <label for="inputPhoneSupplier" class="form-label">Telefone</label>
+                <input class="form-control" type="tel" id="inputPhoneSupplier" spellcheck="false" required maxlength="15">
+            </div>
+
+            <!-- Site -->
+            <div class="col-md-8">
+                <label for="inputSiteSupplier" class="form-label">Site</label>
+                <input class="form-control" type="url" id="inputSiteSupplier" spellcheck="false" maxlength="50" pattern="https://.*" title="O site deve começar com https://">
+                <button type="button" class="mt-2 btn btn-secondary" onclick="acessarSite()">Acessar site</button>
+            </div>
+
+            <!-- Botões -->
+            <div class="mt-5">
+                <button type="submit" class="btn btn-success" id="btnCreate">Adicionar</button>
+                <button type="submit" class="btn btn-warning" id="btnUpdate">Editar</button>
+                <button type="submit" class="btn btn-danger" id="btnDelete">Excluir</button>
+                <button type="reset" class="btn" id="btnReset"></button>
+            </div>
+
+        </form>
+    </div>
+    <script src="../public/js/bootstrap.min.js"></script>
+    <script src="fornecedores.js"></script>
+</body>
+</html>

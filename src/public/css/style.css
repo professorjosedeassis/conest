@@ -1,49 +1,24 @@
+/* input id */
+#idClient {
+    display: none;
+}
+
 /* botões */
-.button img {    
+.button img {
     margin: 50px 15px 25px 15px;
     padding: 5px;
     border: 1px solid #e8e8e8;
     cursor: pointer;
 }
 
+/* Botão reset */
 #btnReset {
-    width: 50px;
-    height: 50px;
+    width: 48px;
+    height: 48px;
     background-image: url('../img/clear.png');
-    background-size: cover;
     border: none;
     cursor: pointer;
     margin-left: 10px;
-}
-
-#btnProduto {
-    width: 64px;
-    height: 45px;
-    background-image: url('../img/barcode.png');
-    background-size: cover;
-    border: none;
-    cursor: pointer;    
-}
-
-
-/* id */
-/*
-#idClient {
-    display: none;
-}
-*/
-
-
-
-#imagemProdutoPreview {
-    border: 1px solid #dfdfdf;
-    border-radius: 5px;
-    width: 260px;
-    height: 260px;
-    padding: 5px;
-    position: fixed;
-    right: 50px;
-    bottom: 30px;
 }
 
 /* rodapé */
@@ -63,6 +38,18 @@ footer p {
     margin: 0px 0px 0px 10px;
 }
 
-footer img {    
+footer img {
     margin-right: 10px;
+}
+
+/* Imagem do produto */
+#imageProductPreview {
+    border: 1px solid #dfdfdf;
+    border-radius: 5px;
+    width: 260px;
+    height: 260px;
+    padding: 5px;
+    position: fixed;
+    right: 45px;
+    bottom: 25px;
 }

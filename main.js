@@ -1,30 +1,30 @@
-const { app, BrowserWindow, ipcMain, Menu, shell, nativeTheme, dialog } = require('electron')
+const { app, BrowserWindow, Menu, shell, ipcMain, dialog, globalShortcut } = require('electron/main')
 const path = require('node:path')
 
-// importar o módulo de conexão
-const { dbConnect, desconectar } = require('./database.js')
-// status de conexão do banco de dados (No MongoDB é mais eficiente manter uma única conexão aberta durante todo o tempo de vida do aplicativo e usá-la conforme necessário. Fechar e reabrir a conexão frequentemente pode aumentar a sobrecarga e causar problemas de desempenho)
-// a função dbStatus garante que a conexão com o banco de dados seja estabelecida apenas uma vez e reutilizada.
-// a variável abaixo é usada para garantir que o sistema inicie com o banco de dados desconectado
-let dbCon = null
+// Importação do módulo de conexão
+const { conectar, desconectar } = require('./database.js')
 
-// importar o Schema (models)
-const clienteModel = require('./src/models/Cliente.js')
+// importação do Schema Clientes da camada model
+const clienteModel = require('./src/models/Clientes.js')
 
-// Janela principal >>>>>>>>>>>>>>>>>>>>>>>>>>>
-const createWindow = () => {
-    nativeTheme.themeSource = 'light'
-    const win = new BrowserWindow({
+// importação do Schema Fornecedores da camada model
+const fornecedorModel = require('./src/models/Fornecedores.js')
+
+// importação do Schema Produtos da camada model
+const produtoModel = require('./src/models/Produtos.js')
+
+// janela principal
+let win
+function createWindow() {
+    win = new BrowserWindow({
         width: 800,
-        height: 360,      
-        icon: './src/public/img/pc.png',
-        resizable: false,
+        height: 600,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js')
         }
     })
 
-    // menu personalizado
+    // Menu personalizado
     Menu.setApplicationMenu(Menu.buildFromTemplate(template))
 
     win.loadFile('./src/views/index.html')
@@ -34,66 +34,153 @@ const createWindow = () => {
         clientWindow()
     })
 
+    ipcMain.on('open-supplier', () => {
+        supplierWindow()
+    })
+
     ipcMain.on('open-product', () => {
         productWindow()
     })
+
+    ipcMain.on('open-report', () => {
+        reportWindow()
+    })
 }
 
-// Janela clientes >>>>>>>>>>>>>>>>>>>>>>>>>>>
-const clientWindow = () => {
-    const father = BrowserWindow.getFocusedWindow()
-    if (father) {
-        const child = new BrowserWindow({
+// Janela sobre
+function aboutWindow() {
+    const main = BrowserWindow.getFocusedWindow()
+    let about
+    if (main) {
+        about = new BrowserWindow({
+            width: 360,
+            height: 215,
+            autoHideMenuBar: true,
+            resizable: false,
+            minimizable: false,
+            parent: main,
+            modal: true,
+            webPreferences: {
+                preload: path.join(__dirname, 'preload.js')
+            }
+        })
+    }
+
+    about.loadFile('./src/views/sobre.html')
+
+    ipcMain.on('close-about', () => {
+        if (about && !about.isDestroyed()) {
+            about.close()
+        }
+    })
+}
+
+// Janela clientes
+let client
+function clientWindow() {
+    const main = BrowserWindow.getFocusedWindow()
+    if (main) {
+        client = new BrowserWindow({
             width: 800,
             height: 600,
-            icon: './src/public/img/pc.png',
             autoHideMenuBar: true,
-            resizable: false,
-            parent: father,
+            parent: main,
             modal: true,
             webPreferences: {
                 preload: path.join(__dirname, 'preload.js')
             }
         })
-        child.loadFile('./src/views/cliente.html')
     }
+    client.loadFile('./src/views/clientes.html')
 }
 
-// Janela produtos >>>>>>>>>>>>>>>>>>>>>>>>>>>
-const productWindow = () => {
-    const father = BrowserWindow.getFocusedWindow()
-    if (father) {
-        const child = new BrowserWindow({
+// Janela fornecedores
+let supplier
+function supplierWindow() {
+    const main = BrowserWindow.getFocusedWindow()
+    if (main) {
+        supplier = new BrowserWindow({
             width: 800,
-            height: 640,
-            icon: './src/public/img/pc.png',
+            height: 600,
             autoHideMenuBar: true,
-            resizable: false,
-            parent: father,
+            parent: main,
             modal: true,
             webPreferences: {
                 preload: path.join(__dirname, 'preload.js')
             }
         })
-        child.loadFile('./src/views/produto.html')
     }
+    supplier.loadFile('./src/views/fornecedores.html')
 }
 
-// iniciar a aplicação
-app.whenReady().then(() => {
+// Janela produtos
+let product
+function productWindow() {
+    const main = BrowserWindow.getFocusedWindow()
+    if (main) {
+        product = new BrowserWindow({
+            width: 800,
+            height: 600,
+            autoHideMenuBar: true,
+            parent: main,
+            modal: true,
+            webPreferences: {
+                preload: path.join(__dirname, 'preload.js')
+            }
+        })
+    }
+    product.loadFile('./src/views/produtos.html')
+}
 
-    // conexão com o banco de dados
-    ipcMain.on('db-connect', async (event, message) => {
-        dbCon = await dbConnect()
+// Janela relatórios
+let report
+function reportWindow() {
+    const main = BrowserWindow.getFocusedWindow()
+    if (main) {
+        report = new BrowserWindow({
+            width: 800,
+            height: 600,
+            autoHideMenuBar: true,
+            parent: main,
+            modal: true,
+            webPreferences: {
+                preload: path.join(__dirname, 'preload.js')
+            }
+        })
+    }
+    report.loadFile('./src/views/relatorios.html')
+}
+
+app.whenReady().then(() => {
+    //registrar atalho global para devtools em qualquer janela ativa
+    globalShortcut.register('Ctrl+Shift+I', () => {
+        const tools = BrowserWindow.getFocusedWindow()
+        if (tools) {
+            tools.webContents.openDevTools()
+        }
+    })
+
+    // Desregistrar atalhos globais antes de sair
+    app.on('will-quit', () => {
+        globalShortcut.unregisterAll()
+    })
+
+    createWindow()
+    // Melhor local para estabelecer a conexão com o banco de dados
+    // Importar antes o módulo de conexão no início do código
+    // No MongoDB é mais eficiente manter uma única conexão aberta durante todo o tempo de vida do aplicativo e usá-la quando necessário. Fechar e reabrir constantemente a conexão aumenta a sobrecarga e reduz o desempenho do servidor.
+    // conexão com o banco ao iniciar a aplicação   
+    ipcMain.on('db-connect', async (event) => {
+        // a linha abaixo estabelece a conexão com o banco
+        await conectar()
+        // enviar ao renderizador uma mensagem para trocar o ícone do status do banco de dados
         event.reply('db-message', "conectado")
     })
 
     // desconectar do banco ao encerrar a aplicação
     app.on('before-quit', async () => {
-        await desconectar(dbCon)
+        await desconectar()
     })
-
-    createWindow()
 
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) {
@@ -108,47 +195,41 @@ app.on('window-all-closed', () => {
     }
 })
 
-// template do menu
+//Reduzir logs não críticos (mensagens no console quando executar Devtools)
+app.commandLine.appendSwitch('log-level', '3')
+
 const template = [
     {
         label: 'Cadastro',
         submenu: [
             {
                 label: 'Clientes',
-                accelerator: 'Alt+C',
                 click: () => clientWindow()
             },
             {
                 label: 'Fornecedores',
-                accelerator: 'Alt+F',
-                //click: () => suplierWindow()
+                click: () => supplierWindow()
             },
             {
                 label: 'Produtos',
-                accelerator: 'Alt+P',
                 click: () => productWindow()
+            },            
+            {
+                type: 'separator'
             },
             {
                 label: 'Sair',
-                click: () => app.quit(),
-                accelerator: 'Alt+F4'
+                accelerator: 'Alt+F4',
+                click: () => app.quit()
             }
         ]
     },
     {
-        label: 'Exibir',
+        label: 'Relatórios'
+    },
+    {
+        label: 'Zoom',
         submenu: [
-            {
-                label: 'Recarregar',
-                role: 'reload'
-            },
-            {
-                label: 'Ferramentas do desenvolvedor',
-                role: 'toggleDevTools'
-            },
-            {
-                type: 'separator'
-            },
             {
                 label: 'Aplicar zoom',
                 role: 'zoomIn'
@@ -167,93 +248,157 @@ const template = [
         label: 'Ajuda',
         submenu: [
             {
-                label: 'Projeto',
-                click: () => shell.openExternal('https://joseassis.com.br/projetos.html')
-            },
-            {
-                type: 'separator'
+                label: 'Repositório',
+                click: () => shell.openExternal('https://github.com/professorjosedeassis/conestv3')
             },
             {
                 label: 'Sobre',
-                //click: () => aboutWindow()
+                click: () => aboutWindow()
             }
         ]
     }
 ]
 
-// CRud Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+/****************************************/
+/************** Clientes  ***************/
+/****************************************/
+
+// Aviso (pop-up) ao abrir a janela
+ipcMain.on('notice-client', () => {
+    dialog.showMessageBox({
+        type: 'info',
+        title: "Atenção!",
+        message: "Pesquise um cliente antes de continuar.",
+        buttons: ['OK']
+    })
+})
+
+// CRUD Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// Recebimento dos dados do formulário do cliente
 ipcMain.on('new-client', async (event, cliente) => {
+    //teste de recebimento dos dados (Passo 2 - slide) Importante!
     console.log(cliente)
+
+    // Passo 3 - slide (cadastrar os dados no banco de dados)
     try {
+        // criar um novo objeto usando a classe modelo
         const novoCliente = new clienteModel({
             nomeCliente: cliente.nomeCli,
             foneCliente: cliente.foneCli,
             emailCliente: cliente.emailCli
         })
-        console.log(novoCliente)
+        // a linha abaixo usa a biblioteca moongoose para salvar
         await novoCliente.save()
+
+        //confirmação de cliente adicionado no banco
         dialog.showMessageBox({
             type: 'info',
             title: "Aviso",
             message: "Cliente adicionado com sucesso",
             buttons: ['OK']
+        }).then((result) => {
+            if (result.response === 0) {
+                event.reply('reset-form')
+            }
         })
-        event.reply('reset-form')
+
     } catch (error) {
         console.log(error)
     }
 })
-//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// Fim do CRUD Create <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
-// CRud Read >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-// Aviso (Busca: Preenchimento de campo obrigatório)
-ipcMain.on('dialog-infoSearchClient', (event) => {
+// CRUD Read >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ipcMain.on('dialog-search', () => {
     dialog.showMessageBox({
         type: 'warning',
         title: 'Atenção!',
         message: 'Preencha um nome no campo de busca',
         buttons: ['OK']
     })
-    event.reply('focus-searchClient') //UX
 })
-// Busca do cliente pelo nome
-ipcMain.on('search-client', async (event, nomeCliente) => {
-    console.log(nomeCliente) //receber pedido de busca do form
+
+ipcMain.on('search-client', async (event, cliNome) => {
+    //teste de recebimento do nome do cliente a ser pesquisado(passo 2)
+    console.log(cliNome)
+    //Passos 3 e 4 - Pesquisar no banco de dados o cliente pelo nome
+    // find() -> buscar no banco de dados (mongoose)
+    // RegExp -> filtro pelo nome do cliente 'i' insensitive (maiúsculo ou minúsculo)
+    // Atenção: nomeCliente -> model | cliNome -> renderizador
     try {
-        const dadosCliente = await clienteModel.find({ nomeCliente: new RegExp(nomeCliente, 'i') }) // buscar no banco 
-        console.log(dadosCliente)
-        //UX
+        const dadosCliente = await clienteModel.find({
+            nomeCliente: new RegExp(cliNome, 'i')
+        })
+        console.log(dadosCliente) // teste dos passos 3 e 4
+        // Passo 5 - slide -> enviar os dados do cliente para o renderizador (JSON.stringfy converte para JSON)
+
+        // Melhoria na experiência do usuário (se não existir o cliente cadstrado, enviar mensagem e questionar se o usuário deseja cadastrar um novo cliente)
         if (dadosCliente.length === 0) {
             dialog.showMessageBox({
                 type: 'warning',
                 title: 'Clientes',
                 message: 'Cliente não cadastrado.\nDeseja cadastrar este cliente?',
                 defaultId: 0,
-                buttons: ['Sim', 'Nâo']
+                buttons: ['Sim', 'Não']
             }).then((result) => {
+                console.log(result)
                 if (result.response === 0) {
+                    //enviar ao renderizador um pedido para setar o nome do cliente (trazendo do campo de busca) e liberar o botão adicionar
                     event.reply('set-nameClient')
                 } else {
-                    event.reply('clear-search')
+                    //enviar ao renderizador um pedido para limpar os campos do formulário
+                    event.reply('reset-form')
                 }
             })
-        } else {
-            event.reply('data-client', JSON.stringify(dadosCliente)) //envio dos dados do cliente ao renderizador (cliente.js)
         }
 
+        event.reply('client-data', JSON.stringify(dadosCliente))
     } catch (error) {
         console.log(error)
     }
 })
+// Fim do CRUD Read <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+// CRUD Delete >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ipcMain.on('delete-client', async (event, idCliente) => {
+    //teste de recebimento do id do cliente (passo 2 - slide)
+    console.log(idCliente)
+    // confirmação antes de excluir o cliente (IMPORTANTE!)
+    // client é a variável ref a janela de clientes
+    const { response } = await dialog.showMessageBox(client, {
+        type: 'warning',
+        buttons: ['Cancelar', 'Excluir'], //[0,1]
+        title: 'Atenção!',
+        message: 'Tem certeza que deseja excluir este cliente?'
+    })
+    // apoio a lógica
+    console.log(response)
+    if (response === 1) {
+        //Passo 3 slide
+        try {
+            const clienteExcluido = await clienteModel.findByIdAndDelete(idCliente)
+            dialog.showMessageBox({
+                type: 'info',
+                title: 'Aviso',
+                message: 'Cliente excluído com sucesso',
+                buttons: ['OK']
+            })
+            event.reply('reset-form')
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+})
+// Fim do CRUD Delete <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
-// CRUD Update >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// CRUD Update >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ipcMain.on('update-client', async (event, cliente) => {
-    console.log(cliente) // teste do passo 2
-
+    //teste de recebimento dos dados do cliente (passo 2)
+    console.log(cliente)
     try {
         const clienteEditado = await clienteModel.findByIdAndUpdate(
             cliente.idCli, {
@@ -265,43 +410,30 @@ ipcMain.on('update-client', async (event, cliente) => {
                 new: true
             }
         )
-        dialog.showMessageBox({
-            type: 'info',
-            title: "Aviso",
-            message: "Dados do cliente alterados com sucesso",
-            buttons: ['OK']
-        }).then((result)=>{
-            if (result.response === 0) {
-                event.reply('reset-form')
-            }
-        })       
     } catch (error) {
         console.log(error)
     }
-})
-//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-
-// CRUD Delete >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-ipcMain.on('delete-client', (event, idCli) => {
-    console.log(idCli) // teste do passo 2
-    //Importante! Confirmar a ação antes de excluir do banco
-    dialog.showMessageBox({
-        type: 'warning',
-        title: 'ATENÇÃO!',
-        message: 'Tem certeza que deseja excluir este cliente?',
-        defaultId: 0,
-        buttons: ['Sim', 'Não']
-    }).then(async (result) => {
+    dialog.showMessageBox(client, {
+        type: 'info',
+        message: 'Dados do cliente alterados com sucesso.',
+        buttons: ['OK']
+    }).then((result) => {
         if (result.response === 0) {
-            // Passo 3 (excluir o cliente do banco)
-            try {
-                await clienteModel.findByIdAndDelete(idCli)
-                event.reply('reset-form')
-            } catch (error) {
-                console.log(error)
-            }
+            event.reply('reset-form')
         }
     })
 })
-//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// Fim do CRUD Update <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+/********************************************/
+/************** Fornecedores  ***************/
+/********************************************/
+
+// Acessar site externo
+ipcMain.on('url-site', (event, urlSite) => {
+    let url = urlSite.url
+    console.log(url)
+    shell.openExternal(url)
+})
+
