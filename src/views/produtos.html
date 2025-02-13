@@ -16,7 +16,7 @@
         <form class="row g-3 mt-2" id="frmProduct">
             <!-- Busca do produto -->
             <div class="col-md-6">
-                <input type="text" class="form-control" id="inputProduct" maxlength="30" spellcheck="false">
+                <input type="text" class="form-control" id="searchProduct" maxlength="30" spellcheck="false">
                 <br>
             </div>
             <div class="col-md-4">
@@ -27,27 +27,27 @@
 
             <!-- Id do produto (pode ser usado como código interno)-->
             <div class="col-md-6">
-                <label for="idProduct" class="form-label">id</label>
-                <input type="text" class="form-control" id="idProduct">
+                <label for="inputIdProduct" class="form-label">id</label>
+                <input type="text" class="form-control" id="inputIdProduct">
             </div>
 
             <!-- Barcode -->
             <div class="col-md-6">
-                <label for="barcode" class="form-label">Código de barras</label>
-                <input type="text" class="form-control" id="barcodeProduct">
+                <label for="inputBarcodeProduct" class="form-label">Código de barras</label>
+                <input type="text" class="form-control" id="inputBarcodeProduct">
             </div>
 
             <!-- Nome do produto -->
             <div class="col-md-7">
-                <label for="nameProduct" class="form-label">Produto</label>
-                <input type="text" class="form-control" id="nameProduct" required spellcheck="false" maxlength="50">
+                <label for="inputNameProduct" class="form-label">Produto</label>
+                <input type="text" class="form-control" id="inputNameProduct" required spellcheck="false" maxlength="50">
             </div>
 
             <!-- Imagem do produto -->
             <div class="col-md-5">
                 <img src="../public/img/camera.png" alt="imagem" id="imageProductPreview">
             </div>
-            <input type="file" id="imageProduct">
+            <input type="file" id="pathImageProduct">
 
             <!-- Botões -->
             <div class="col-12">

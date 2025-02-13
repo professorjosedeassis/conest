@@ -19,5 +19,6 @@ contextBridge.exposeInMainWorld('api', {
     validarBusca: () => ipcRenderer.send('dialog-search'),
     setarNomeCliente: (args) => ipcRenderer.on('set-nameClient', args),
     avisoCliente: () => ipcRenderer.send('notice-client'),
-    abrirSite: (urlSite) => ipcRenderer.send('url-site', urlSite)
+    abrirSite: (urlSite) => ipcRenderer.send('url-site', urlSite),
+    novoProduto: (produto) => ipcRenderer.send('new-product', produto)
 })

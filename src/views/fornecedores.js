@@ -1,3 +1,7 @@
+/**
+ * Processo de renderização da tela de Fornecedores
+ */
+
 // Acessar site >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 function acessarSite() {
     let urlFornecedor = document.getElementById('inputSiteSupplier').value

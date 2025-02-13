@@ -12,6 +12,7 @@ const fornecedorModel = require('./src/models/Fornecedores.js')
 
 // importação do Schema Produtos da camada model
 const produtoModel = require('./src/models/Produtos.js')
+const { console } = require('node:inspector')
 
 // janela principal
 let win
@@ -213,7 +214,7 @@ const template = [
             {
                 label: 'Produtos',
                 click: () => productWindow()
-            },            
+            },
             {
                 type: 'separator'
             },
@@ -437,3 +438,51 @@ ipcMain.on('url-site', (event, urlSite) => {
     shell.openExternal(url)
 })
 
+
+/********************************************/
+/**************** Produtos  *****************/
+/********************************************/
+
+// CRUD Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ipcMain.on('new-product', async (event, produto) => {
+    // teste de recebimento dos dados do produto
+    console.log(produto)
+    // envio dos dados ao banco de dados (cadastrar um novo produto)
+    try {
+        const novoProduto = new produtoModel({
+            barcodeProduto: produto.barcodePro,
+            nomeProduto: produto.nomePro
+        })
+        await novoProduto.save()
+        // confirmação
+        dialog.showMessageBox({
+            type: 'info',
+            title: "Aviso",
+            message: "Produto adicionado com sucesso!",
+            buttons: ['OK']
+        }).then((result) => {
+            if (result.response === 0) {
+                event.reply('reset-form')
+            }
+        })
+    } catch (error) {
+        console.log(error)
+    }
+})
+
+// Fim CRUD Create <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+// CRUD Read >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+// Fim CRUD Read <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+// CRUD Update >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+// Fim CRUD Update <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+// CRUD Delete >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+// Fim CRUD Delete <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

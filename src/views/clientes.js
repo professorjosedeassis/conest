@@ -1,6 +1,5 @@
 /**
- * Processo de renderização
- * clientes.html
+ * Processo de renderização da tela de Clientes
  */
 
 const foco = document.getElementById('searchClient')
