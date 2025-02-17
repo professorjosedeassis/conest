@@ -8,7 +8,7 @@ const foco = document.getElementById('searchProduct')
 document.addEventListener('DOMContentLoaded', () => {
     btnUpdate.disabled = true
     btnDelete.disabled = true
-    foco.focus()    
+    foco.focus()
 })
 
 // Função para manipular o evento da tecla Enter
@@ -36,17 +36,26 @@ let idProduto = document.getElementById('inputIdProduct')
 let barcodeProduto = document.getElementById('inputBarcodeProduct')
 let nomeProduto = document.getElementById('inputNameProduct')
 let caminhoImagemProduto = document.getElementById('pathImageProduct')
+let imagem = document.getElementById('imageProductPreview')
+
+let caminhoImagem
 
 // // CRUD Create/Update >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+async function uploadImage() {
+    caminhoImagem = await api.selecionarArquivo()
+    console.log(caminhoImagem)
+    imagem.src = `file://${caminhoImagem}`    
+}
+
 formProduto.addEventListener('submit', async (event) => {
     event.preventDefault()
     //teste de recebimento dos inputs do formulário
-    console.log(idProduto.value, barcodeProduto.value, nomeProduto.value, caminhoImagemProduto.value)
+    console.log(idProduto.value, barcodeProduto.value, nomeProduto.value, caminhoImagem)
     // criar um objeto
     const produto = {
         barcodePro: barcodeProduto.value,
         nomePro: nomeProduto.value,
-        caminhoImagemPro: caminhoImagemProduto.value
+        caminhoImagemPro: caminhoImagem
     }
     api.novoProduto(produto)
 })

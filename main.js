@@ -1,3 +1,5 @@
+console.log("processo principal")
+
 const { app, BrowserWindow, Menu, shell, ipcMain, dialog, globalShortcut } = require('electron/main')
 const path = require('node:path')
 
@@ -12,7 +14,9 @@ const fornecedorModel = require('./src/models/Fornecedores.js')
 
 // importação do Schema Produtos da camada model
 const produtoModel = require('./src/models/Produtos.js')
-const { console } = require('node:inspector')
+
+//importar fs para trabalhar com os arquivos de imagens
+const fs = require('fs')
 
 // janela principal
 let win
@@ -444,17 +448,51 @@ ipcMain.on('url-site', (event, urlSite) => {
 /********************************************/
 
 // CRUD Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ipcMain.handle('open-file-dialog', async () => {
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+        title: "Selecionar imagem",
+        properties: ['openFile'],
+        filters: [
+            {
+                name: 'Imagens',
+                extensions: ['png', 'jpg', 'jpeg']
+            }
+        ]
+    })
+
+    if (canceled || filePaths.length === 0) {
+        return null
+    } else {
+        return filePaths[0]  // Retorna o caminho real do arquivo
+    }
+})
+
 ipcMain.on('new-product', async (event, produto) => {
-    // teste de recebimento dos dados do produto
-    console.log(produto)
-    // envio dos dados ao banco de dados (cadastrar um novo produto)
     try {
+        console.log(produto)
+
+        // Criar a pasta de uploads se não existir
+        const uploadsDir = path.join(__dirname, 'uploads')
+        if (!fs.existsSync(uploadsDir)) {
+            fs.mkdirSync(uploadsDir)
+        }
+
+        // Gerar um nome único para o arquivo
+        const fileName = `${Date.now()}_${path.basename(produto.caminhoImagemPro)}`
+        const uploads = path.join(uploadsDir, fileName)
+
+        // Copiar o arquivo da imagem para a pasta uploads
+        fs.copyFileSync(produto.caminhoImagemPro, uploads)
+
+        // Criar um novo produto no banco de dados
         const novoProduto = new produtoModel({
             barcodeProduto: produto.barcodePro,
-            nomeProduto: produto.nomePro
-        })
+            nomeProduto: produto.nomePro,
+            caminhoImagemProduto: uploads // Salvando o caminho correto no banco
+        });
+
         await novoProduto.save()
-        // confirmação
+
         dialog.showMessageBox({
             type: 'info',
             title: "Aviso",
@@ -465,8 +503,15 @@ ipcMain.on('new-product', async (event, produto) => {
                 event.reply('reset-form')
             }
         })
+
     } catch (error) {
-        console.log(error)
+        console.error("Erro ao salvar produto:", error)
+        dialog.showMessageBox({
+            type: 'error',
+            title: 'Erro',
+            message: error.message,
+            buttons: ['OK']
+        })
     }
 })
 
