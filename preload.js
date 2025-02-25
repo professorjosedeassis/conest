@@ -21,5 +21,8 @@ contextBridge.exposeInMainWorld('api', {
     avisoCliente: () => ipcRenderer.send('notice-client'),
     abrirSite: (urlSite) => ipcRenderer.send('url-site', urlSite),
     novoProduto: (produto) => ipcRenderer.send('new-product', produto),
-    selecionarArquivo: () => ipcRenderer.invoke('open-file-dialog')
+    selecionarArquivo: () => ipcRenderer.invoke('open-file-dialog'),
+    buscarProduto: (barcode) => ipcRenderer.send('search-product', barcode),
+    setarBarcode: (args) => ipcRenderer.on('set-barcode', args),
+    renderizarProduto: (dadosProduto) => ipcRenderer.on('product-data', dadosProduto)
 })

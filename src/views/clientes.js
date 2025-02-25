@@ -127,7 +127,7 @@ function buscarCliente() {
             })
         })
     }
-    //setar o nome do cliente e liberar o botão adicionar
+    //setar o nome do cliente 
     api.setarNomeCliente(() => {
         //setar o nome do cliente       
         let campoNome = document.getElementById('searchClient').value

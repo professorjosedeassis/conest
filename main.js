@@ -1,5 +1,3 @@
-console.log("processo principal")
-
 const { app, BrowserWindow, Menu, shell, ipcMain, dialog, globalShortcut } = require('electron/main')
 const path = require('node:path')
 
@@ -15,7 +13,7 @@ const fornecedorModel = require('./src/models/Fornecedores.js')
 // importação do Schema Produtos da camada model
 const produtoModel = require('./src/models/Produtos.js')
 
-//importar fs para trabalhar com os arquivos de imagens
+// importar biblioteca nativa do JS para manipular arquivos
 const fs = require('fs')
 
 // janela principal
@@ -265,6 +263,20 @@ const template = [
 ]
 
 /****************************************/
+/************** Validações  *************/
+/****************************************/
+
+ipcMain.on('dialog-search', () => {
+    dialog.showMessageBox({
+        type: 'warning',
+        title: 'Atenção!',
+        message: 'Preencha o campo de busca',
+        buttons: ['OK']
+    })
+})
+
+
+/****************************************/
 /************** Clientes  ***************/
 /****************************************/
 
@@ -315,15 +327,6 @@ ipcMain.on('new-client', async (event, cliente) => {
 
 
 // CRUD Read >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-ipcMain.on('dialog-search', () => {
-    dialog.showMessageBox({
-        type: 'warning',
-        title: 'Atenção!',
-        message: 'Preencha um nome no campo de busca',
-        buttons: ['OK']
-    })
-})
-
 ipcMain.on('search-client', async (event, cliNome) => {
     //teste de recebimento do nome do cliente a ser pesquisado(passo 2)
     console.log(cliNome)
@@ -448,6 +451,7 @@ ipcMain.on('url-site', (event, urlSite) => {
 /********************************************/
 
 // CRUD Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// Obter o caminho da imagem (executar o open dialog)
 ipcMain.handle('open-file-dialog', async () => {
     const { canceled, filePaths } = await dialog.showOpenDialog({
         title: "Selecionar imagem",
@@ -460,58 +464,69 @@ ipcMain.handle('open-file-dialog', async () => {
         ]
     })
 
-    if (canceled || filePaths.length === 0) {
+    if (canceled === true || filePaths.length === 0) {
         return null
     } else {
-        return filePaths[0]  // Retorna o caminho real do arquivo
+        return filePaths[0] //retorna o caminho do arquivo
     }
+
 })
 
 ipcMain.on('new-product', async (event, produto) => {
+    // teste de recebimento dos dados do produto
+    console.log(produto) // teste do passo 2 (recebimento do produto)
+
+    //Resolução de BUG (quando a imagem não for selecionada)
+    let caminhoImagemSalvo = ""
+
     try {
-        console.log(produto)
+        // Correção de BUG (validação de imagem)
+        if (produto.caminhoImagemPro) {
+            //===================================== (imagens #1)
+            // Criar a pasta uploads se não existir
+            //__dirname (caminho absoluto)
+            const uploadDir = path.join(__dirname, 'uploads')
+            if (!fs.existsSync(uploadDir)) {
+                fs.mkdirSync(uploadDir)
+            }
 
-        // Criar a pasta de uploads se não existir
-        const uploadsDir = path.join(__dirname, 'uploads')
-        if (!fs.existsSync(uploadsDir)) {
-            fs.mkdirSync(uploadsDir)
+            //===================================== (imagens #2)
+            // Gerar um nome único para o arquivo (para não sobrescrever)
+            const fileName = `${Date.now()}_${path.basename(produto.caminhoImagemPro)}`
+            //console.log(fileName) // apoio a lógica
+            const uploads = path.join(uploadDir, fileName)
+
+            //===================================== (imagens #3)
+            //Copiar o arquivo de imagem para pasta uploads
+            fs.copyFileSync(produto.caminhoImagemPro, uploads)
+
+            //===================================== (imagens #4)
+            //alterar a variável caminhoImagemSalvo para uploads
+            caminhoImagemSalvo = uploads
+
         }
-
-        // Gerar um nome único para o arquivo
-        const fileName = `${Date.now()}_${path.basename(produto.caminhoImagemPro)}`
-        const uploads = path.join(uploadsDir, fileName)
-
-        // Copiar o arquivo da imagem para a pasta uploads
-        fs.copyFileSync(produto.caminhoImagemPro, uploads)
-
-        // Criar um novo produto no banco de dados
+        // Cadastrar o produto no banco de dados
         const novoProduto = new produtoModel({
             barcodeProduto: produto.barcodePro,
             nomeProduto: produto.nomePro,
-            caminhoImagemProduto: uploads // Salvando o caminho correto no banco
-        });
+            caminhoImagemProduto: caminhoImagemSalvo
+        })
 
+        // adicionar o produto no banco de dados
         await novoProduto.save()
 
+        // confirmação
         dialog.showMessageBox({
             type: 'info',
-            title: "Aviso",
-            message: "Produto adicionado com sucesso!",
+            message: 'Produto cadastrado com sucesso.',
             buttons: ['OK']
         }).then((result) => {
             if (result.response === 0) {
                 event.reply('reset-form')
             }
         })
-
     } catch (error) {
-        console.error("Erro ao salvar produto:", error)
-        dialog.showMessageBox({
-            type: 'error',
-            title: 'Erro',
-            message: error.message,
-            buttons: ['OK']
-        })
+        console.log(error)
     }
 })
 
@@ -519,7 +534,40 @@ ipcMain.on('new-product', async (event, produto) => {
 
 
 // CRUD Read >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ipcMain.on('search-product', async (event, barcode) => {
+    console.log(barcode) // teste do passo 2
+    try {
+        // Passos 3 e 4 (fluxo do slide)
+        const dadosProduto = await produtoModel.find({
+            barcodeProduto: barcode
+        })
+        console.log(dadosProduto) //teste Passo 4
+        //validação (se não existir produto cadastrado)
+        if (dadosProduto.length === 0) {
+            dialog.showMessageBox({
+                type: 'warning',
+                title: 'Produtos',
+                message: 'Produto não cadastrado.\nDeseja cadastrar este produto?',
+                defaultId: 0,
+                buttons: ['Sim', 'Não']
+            }).then((result) => {
+                console.log(result)
+                if (result.response === 0) {
+                    //enviar ao renderizador um pedido para setar o código de barras
+                    event.reply('set-barcode')
+                } else {
+                    //enviar ao renderizador um pedido para limpar os campos do formulário
+                    event.reply('reset-form')
+                }
+            })
+        }
+        // Passo 5: fluxo (envio dos dados do produto ao renderizador)
+        event.reply('product-data', JSON.stringify(dadosProduto))
 
+    } catch (error) {
+        console.log(error)
+    }
+})
 // Fim CRUD Read <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
