@@ -48,7 +48,7 @@ async function uploadImage() {
     console.log(caminhoImagem)
     //correção BUG seleção de imagem
     if (caminhoImagem) {
-        imagem.src = `file://${caminhoImagem}`        
+        imagem.src = `file://${caminhoImagem}`
     }
     btnCreate.focus() //correção de BUG (teclaEnter)
 }
@@ -57,15 +57,30 @@ formProduto.addEventListener('submit', async (event) => {
     event.preventDefault()
     //teste de recebimento dos inputs do formulário (passo 1)
     console.log(barcodeProduto.value, nomeProduto.value, caminhoImagem)
-    // criar um objeto
-    // caminhoImagemPro: caminhoImagem ? caminhoImagem : "" 
-    // ? : (operador ternário (if else)) correção de BUG se não existir caminho da imagem (se nenhuma imagem selecionada) enviar uma string vazia ""
-    const produto = {
-        barcodePro: barcodeProduto.value,
-        nomePro: nomeProduto.value,
-        caminhoImagemPro: caminhoImagem ? caminhoImagem : ""
+
+    //Estratégia para determinar se é um novo cadastro de produtos ou a edição de um produto já existente
+    if (idProduto.value === "") {
+        // criar um objeto
+        // caminhoImagemPro: caminhoImagem ? caminhoImagem : "" 
+        // ? : (operador ternário (if else)) correção de BUG se não existir caminho da imagem (se nenhuma imagem selecionada) enviar uma string vazia ""
+        const produto = {
+            barcodePro: barcodeProduto.value,
+            nomePro: nomeProduto.value,
+            caminhoImagemPro: caminhoImagem ? caminhoImagem : ""
+        }
+        api.novoProduto(produto)
+    } else {
+        // criar um objeto
+        // caminhoImagemPro: caminhoImagem ? caminhoImagem : "" 
+        // ? : (operador ternário (if else)) correção de BUG se não existir caminho da imagem (se nenhuma imagem selecionada) enviar uma string vazia ""
+        const produto = {
+            idPro: idProduto.value,
+            barcodePro: barcodeProduto.value,
+            nomePro: nomeProduto.value,
+            caminhoImagemPro: caminhoImagem ? caminhoImagem : ""
+        }
+        api.editarProduto(produto)
     }
-    api.novoProduto(produto)
 })
 // Fim CRUD Create/Update <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -129,7 +144,10 @@ api.setarBarcode(() => {
 
 
 // CRUD Delete >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
+function excluirProduto() {
+    console.log(idProduto.value) //Passo 1 - slide
+    api.deletarProduto(idProduto.value) //Passo 2 - slide
+}
 // Fim CRUD Delete <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 

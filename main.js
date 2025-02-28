@@ -571,11 +571,81 @@ ipcMain.on('search-product', async (event, barcode) => {
 // Fim CRUD Read <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
-// CRUD Update >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-// Fim CRUD Update <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-
 // CRUD Delete >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ipcMain.on('delete-product', async (event, idProduto) => {
+    //teste de recebimento do id do produto (passo 2 - slide)
+    console.log(idProduto)
+    // confirmação antes de excluir o produto (IMPORTANTE!)
+    // product é a variável ref a janela de clientes
+    const { response } = await dialog.showMessageBox(product, {
+        type: 'warning',
+        buttons: ['Cancelar', 'Excluir'], //[0,1]
+        title: 'Atenção!',
+        message: 'Tem certeza que deseja excluir este produto?'
+    })
+    // apoio a lógica
+    console.log(response)
+    if (response === 1) {
+        //Passo 3 slide
+        try {
+            const produtoExcluido = await produtoModel.findByIdAndDelete(idProduto)
+            dialog.showMessageBox({
+                type: 'info',
+                title: 'Aviso',
+                message: 'Produto excluído com sucesso',
+                buttons: ['OK']
+            })
+            event.reply('reset-form')
+        } catch (error) {
+            console.log(error)
+        }
+    }
 
+})
 // Fim CRUD Delete <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+// CRUD Update >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ipcMain.on('update-product', async (event, produto) => {
+    //teste de recebimento dos dados do produto (passo 2)
+    console.log(produto)
+
+    try {
+        // validação (correção BUG imagem não selecionada)
+        if (produto.caminhoImagemPro === "") {
+            const produtoEditado = await produtoModel.findByIdAndUpdate(
+                produto.idPro, {
+                barcodeProduto: produto.barcodePro,
+                nomeProduto: produto.nomePro
+            },
+                {
+                    new: true
+                }
+            )
+        } else {
+            const produtoEditado = await produtoModel.findByIdAndUpdate(
+                produto.idPro, {
+                barcodeProduto: produto.barcodePro,
+                nomeProduto: produto.nomePro,
+                caminhoImagemProduto: produto.caminhoImagemPro
+            },
+                {
+                    new: true
+                }
+            )
+        }
+    } catch (error) {
+        console.log(error)
+    }
+    dialog.showMessageBox(product, {
+        type: 'info',
+        message: 'Dados do produto alterados com sucesso.',
+        buttons: ['OK']
+    }).then((result) => {
+        if (result.response === 0) {
+            event.reply('reset-form')
+        }
+    })
+
+})
+// Fim CRUD Update <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
