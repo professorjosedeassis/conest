@@ -13,18 +13,8 @@
         <h1 class="mt-3">Fornecedores</h1>
         <form id="frmSupplier" class="mt-2 row g-3">
 
-            <!-- Buscar fornecedor -->
-            <div class="col-md-6">
-                <input type="text" class="form-control" id="searchSupplier" maxlength="30" spellcheck="false">
-            </div>
-            <div class="col-md-4">
-                <button class="btn btn-primary" id="btnRead">Buscar</button>
-            </div>
-
-            <hr class="mt-4 border border-primary border -1">
-
-            <!-- Id do fornecedor (oculto) -->
-            <div class="col-md-6" id="idClient">
+            <!-- Id do fornecedor -->
+            <div class="col-md-6" id="idSupplier">
                 <input class="form-control" type="text" id="inputSupplier" placeholder="id">
             </div>
 
@@ -34,10 +24,10 @@
                 <input class="form-control" type="text" id="inputNameSupplier" spellcheck="false" required maxlength="50">
             </div>
 
-            <!-- Fone do fornecedor -->
+            <!-- CNPJ do fornecedor -->
             <div class="col-md-4">
-                <label for="inputPhoneSupplier" class="form-label">Telefone</label>
-                <input class="form-control" type="tel" id="inputPhoneSupplier" spellcheck="false" required maxlength="15">
+                <label for="inputCNPJSupplier" class="form-label">CNPJ</label>
+                <input class="form-control" type="text" id="inputCNPJSupplier" spellcheck="false" required maxlength="20">
             </div>
 
             <!-- Site -->

@@ -16,6 +16,9 @@ const produtoModel = require('./src/models/Produtos.js')
 // importar biblioteca nativa do JS para manipular arquivos
 const fs = require('fs')
 
+// importar biblioteca para gerar pdf (instalar pacote jspdf)
+const { jsPDF } = require('jspdf')
+
 // janela principal
 let win
 function createWindow() {
@@ -176,8 +179,11 @@ app.whenReady().then(() => {
     ipcMain.on('db-connect', async (event) => {
         // a linha abaixo estabelece a conexão com o banco
         await conectar()
-        // enviar ao renderizador uma mensagem para trocar o ícone do status do banco de dados
-        event.reply('db-message', "conectado")
+        // enviar ao renderizador uma mensagem para trocar o ícone do status do banco de dados (delay 500ms para sincronizar (mongodb atlas na nuvem))
+        setTimeout(() => {
+            event.reply('db-message', "conectado")
+        }, 500)
+
     })
 
     // desconectar do banco ao encerrar a aplicação
@@ -228,7 +234,15 @@ const template = [
         ]
     },
     {
-        label: 'Relatórios'
+        label: 'Relatórios',
+        submenu: [
+            {
+                label: 'Relatório de Clientes',
+                click: () => {
+                    gerarRelatorioClientes()
+                }
+            }
+        ]
     },
     {
         label: 'Zoom',
@@ -445,6 +459,32 @@ ipcMain.on('url-site', (event, urlSite) => {
     shell.openExternal(url)
 })
 
+// CRUD Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ipcMain.on('new-supplier', async (event, fornecedor) => {
+    console.log(fornecedor)
+    try {
+        const novoFornecedor = new fornecedorModel({
+            nomeFornecedor: fornecedor.nomeFor,
+            cnpjFornecedor: fornecedor.cnpjFor,
+            siteFornecedor: fornecedor.siteFor
+        })
+        await novoFornecedor.save()
+        dialog.showMessageBox({
+            type: 'info',
+            title: "Aviso",
+            message: "Fornecedor adicionado com sucesso",
+            buttons: ['OK']
+        }).then((result) => {
+            if (result.response === 0) {
+                event.reply('reset-form')
+            }
+        })
+    } catch (error) {
+        console.log(error)
+    }
+})
+// Fim do CRUD Create <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
 
 /********************************************/
 /**************** Produtos  *****************/
@@ -649,3 +689,51 @@ ipcMain.on('update-product', async (event, produto) => {
 
 })
 // Fim CRUD Update <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+async function gerarRelatorioClientes() {
+    try {
+        // a linha abaixo lista todos os clientes cadastrados por ordem alfabética 
+        const clientes = await clienteModel.find().sort(
+            {
+                nomeCliente: 1
+            }
+        )
+        //console.log(clientes)
+        // Relatório
+        const doc = new jsPDF('p', 'mm', 'a4') //p portrait | l landscape
+        doc.setFontSize(16)
+        doc.text('Relatório de Clientes', 14, 20) //x, y
+        const dataAtual = new Date().toLocaleDateString('pt-BR')
+        doc.setFontSize(12)
+        doc.text(`Data: ${dataAtual}`, 14, 30)
+        let y = 45
+        doc.setFontSize(12);
+        doc.text('Nome', 14, y)
+        doc.text('Telefone', 80, y)
+        doc.text('E-mail', 130, y)
+        y += 5
+        doc.setLineWidth(0.5)
+        doc.line(10, y, 200, y)
+        y += 10
+        clientes.forEach((c) => {
+            // se ultrapassar 270mm (A4 297mm) adicionar outra página
+            if (y > 270) {
+                doc.addPage()
+                y = 20 //cabeçalho da outra página
+            }
+            doc.text(c.nomeCliente, 14, y)
+            doc.text(c.foneCliente, 80, y)
+            doc.text(c.emailCliente || "N/A", 130, y)
+            y += 10
+        })
+        // Caminho do arquivo temporário
+        const tempDir = app.getPath('temp')
+        const filePath = path.join(tempDir, 'clientes.pdf')
+        // Salvar o PDF temporariamente
+        doc.save(filePath)
+        // Abrir o PDF no visualizador padrão
+        shell.openPath(filePath)
+    } catch (error) {
+        console.log(error)
+    }
+}
