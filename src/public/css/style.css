@@ -48,15 +48,7 @@ footer img {
     border-radius: 5px;
     width: 260px;
     height: 260px;
-
-    display: block; /* ajuste 16/02 */
-    object-fit: contain; /* ajuste 16/02 */
-   /* object-fit: cover; /* ajuste 16/02 */ 
-
-    padding: 5px;
-    position: fixed;
-    right: 45px;
-    bottom: 20px;
-    display: block;
+    display: block; 
+    padding: 5px;    
     object-fit: contain; /* object-fit: cover; */
 }

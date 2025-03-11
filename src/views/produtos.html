@@ -44,6 +44,16 @@
                     maxlength="50">
             </div>
 
+            <!-- Fornecedor -->
+            <div class="col-md-5">
+                <label for="selectSuplier" class="form-label">Fornecedor</label>
+                <select class="form-select" id="selectSuplier" name="Fornecedor" required>
+                    <option value="" disabled selected>Selecione um fornecedor</option>
+                    <option value="kalunga">Kalunga</option>
+                    <option value="copel">Copel</option>
+                </select>
+            </div>
+
             <!-- Imagem do produto -->
             <div class="col-md-5">
                 <img src="../public/img/camera.png" alt="imagem" id="imageProductPreview">
@@ -51,7 +61,8 @@
 
             <!-- Upload de imagem -->
             <div class="col-12">
-                <input type="button" class="btn btn-secondary" value="Upload de imagem" onclick="uploadImage()" id="btnUpload">
+                <input type="button" class="btn btn-secondary" value="Upload de imagem" onclick="uploadImage()"
+                    id="btnUpload">
             </div>
 
             <!-- Botões -->

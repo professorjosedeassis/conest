@@ -4,19 +4,19 @@ const path = require('node:path')
 // Importação do módulo de conexão
 const { conectar, desconectar } = require('./database.js')
 
-// importação do Schema Clientes da camada model
+// Importação do Schema Clientes da camada model
 const clienteModel = require('./src/models/Clientes.js')
 
-// importação do Schema Fornecedores da camada model
+// Importação do Schema Fornecedores da camada model
 const fornecedorModel = require('./src/models/Fornecedores.js')
 
-// importação do Schema Produtos da camada model
+// Importação do Schema Produtos da camada model
 const produtoModel = require('./src/models/Produtos.js')
 
-// importar biblioteca nativa do JS para manipular arquivos
+// Importar biblioteca nativa do JS para manipular arquivos
 const fs = require('fs')
 
-// importar biblioteca para gerar pdf (instalar pacote jspdf)
+// Importar biblioteca para gerar pdf (instalar pacote jspdf)
 const { jsPDF } = require('jspdf')
 
 // janela principal
@@ -33,24 +33,7 @@ function createWindow() {
     // Menu personalizado
     Menu.setApplicationMenu(Menu.buildFromTemplate(template))
 
-    win.loadFile('./src/views/index.html')
-
-    // botões
-    ipcMain.on('open-client', () => {
-        clientWindow()
-    })
-
-    ipcMain.on('open-supplier', () => {
-        supplierWindow()
-    })
-
-    ipcMain.on('open-product', () => {
-        productWindow()
-    })
-
-    ipcMain.on('open-report', () => {
-        reportWindow()
-    })
+    win.loadFile('./src/views/index.html')    
 }
 
 // Janela sobre
@@ -125,8 +108,8 @@ function productWindow() {
     const main = BrowserWindow.getFocusedWindow()
     if (main) {
         product = new BrowserWindow({
-            width: 800,
-            height: 600,
+            width: 1010,
+            height: 720,
             autoHideMenuBar: true,
             parent: main,
             modal: true,
@@ -136,6 +119,8 @@ function productWindow() {
         })
     }
     product.loadFile('./src/views/produtos.html')
+    // centralizar a janela
+    product.center()
 }
 
 // Janela relatórios
@@ -156,6 +141,23 @@ function reportWindow() {
     }
     report.loadFile('./src/views/relatorios.html')
 }
+
+// botões
+ipcMain.on('open-client', () => {
+    clientWindow()
+})
+
+ipcMain.on('open-supplier', () => {
+    supplierWindow()
+})
+
+ipcMain.on('open-product', () => {
+    productWindow()
+})
+
+ipcMain.on('open-report', () => {
+    reportWindow()
+})
 
 app.whenReady().then(() => {
     //registrar atalho global para devtools em qualquer janela ativa
@@ -179,7 +181,7 @@ app.whenReady().then(() => {
     ipcMain.on('db-connect', async (event) => {
         // a linha abaixo estabelece a conexão com o banco
         await conectar()
-        // enviar ao renderizador uma mensagem para trocar o ícone do status do banco de dados (delay 500ms para sincronizar (mongodb atlas na nuvem))
+        // enviar ao renderizador uma mensagem para trocar o ícone do status do banco de dados (delay 500ms (0.5s) para sincronizar
         setTimeout(() => {
             event.reply('db-message', "conectado")
         }, 500)
@@ -294,7 +296,7 @@ ipcMain.on('dialog-search', () => {
 /************** Clientes  ***************/
 /****************************************/
 
-// Aviso (pop-up) ao abrir a janela
+// Exemplo usado no bloqueio das caixas de input (opcional)
 ipcMain.on('notice-client', () => {
     dialog.showMessageBox({
         type: 'info',
