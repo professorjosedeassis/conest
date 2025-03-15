@@ -26,17 +26,10 @@
             <hr class="border border-primary border-1 opacity-75">
 
             <!-- Id do produto (pode ser usado como código interno)-->
-            <div class="col-md-6">
+            <div class="col-md-6" id="idProduct">
                 <label for="inputIdProduct" class="form-label">id</label>
                 <input type="text" class="form-control" id="inputIdProduct">
             </div>
-
-            <!-- Barcode -->
-            <div class="col-md-6">
-                <label for="inputBarcodeProduct" class="form-label">Código de barras</label>
-                <input type="text" class="form-control" id="inputBarcodeProduct">
-            </div>
-
             <!-- Nome do produto -->
             <div class="col-md-7">
                 <label for="inputNameProduct" class="form-label">Produto</label>
@@ -44,14 +37,43 @@
                     maxlength="50">
             </div>
 
-            <!-- Fornecedor -->
+            <!-- Barcode -->
             <div class="col-md-5">
-                <label for="selectSuplier" class="form-label">Fornecedor</label>
-                <select class="form-select" id="selectSuplier" name="Fornecedor" required>
-                    <option value="" disabled selected>Selecione um fornecedor</option>
-                    <option value="kalunga">Kalunga</option>
-                    <option value="copel">Copel</option>
-                </select>
+                <label for="inputBarcodeProduct" class="form-label">Código de barras</label>
+                <input type="text" class="form-control" id="inputBarcodeProduct">
+            </div>            
+
+            <div class="row">
+                <!-- Fornecedor -->
+                <div class="mt-3 col-md-4">
+                    <label for="selectSuplier" class="form-label">Fornecedor</label>
+                    <select class="form-select" id="selectSuplier" name="Fornecedor" required>
+                        <option value="" disabled selected>Selecione</option>
+                        <option value="kalunga">Kalunga</option>
+                        <option value="copel">Copel</option>
+                    </select>
+                </div>
+            
+                <!-- Data -->
+                <div class="mt-3 col-md-3">
+                    <label for="dataProduct" class="form-label">Data</label>
+                    <input type="text" class="form-control" id="dataProduct" disabled>
+                </div>  
+            
+                <!-- Quebra de linha -->
+                <div class="w-100 mt-3"></div>
+            
+                <!-- Quantidade -->
+                <div class="col-md-3">
+                    <label for="inputAmountProduct" class="form-label">Quantidade</label>
+                    <input type="text" class="form-control" id="inputAmountProduct">
+                </div>
+            
+                <!-- Valor -->
+                <div class="col-md-4">
+                    <label for="inputValueProduct" class="form-label">Valor</label>
+                    <input type="text" class="form-control" id="inputValueProduct">
+                </div>
             </div>
 
             <!-- Imagem do produto -->
@@ -59,19 +81,13 @@
                 <img src="../public/img/camera.png" alt="imagem" id="imageProductPreview">
             </div>
 
-            <!-- Upload de imagem -->
-            <div class="col-12">
-                <input type="button" class="btn btn-secondary" value="Upload de imagem" onclick="uploadImage()"
-                    id="btnUpload">
-            </div>
-
             <!-- Botões -->
-            <div class="col-12">
-                <br><br><br>
+            <div class="col-12">                
                 <button type="submit" class="btn btn-success" id="btnCreate">Adicionar</button>
                 <button type="submit" class="btn btn-warning" id="btnUpdate">Editar</button>
                 <button type="button" class="btn btn-danger" id="btnDelete" onclick="excluirProduto()">Excluir</button>
                 <button type="reset" class="btn" id="btnReset" onclick="resetForm()"></button>
+                <button type="button" class="btn btn-secondary ms-4" onclick="uploadImage()">Upload</button>
             </div>
 
         </form>

@@ -74,6 +74,8 @@ formCliente.addEventListener('submit', async (event) => {
         }
         api.editarCliente(cliente)
     }
+
+
 })
 // Fim CRUD Create <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -106,7 +108,7 @@ function buscarCliente() {
                 document.getElementById('inputEmailClient').value = c.emailCliente
                 document.getElementById('inputIdClient').value = c._id
                 //limpar o campo de busca, remover o foco e desativar a busca
-                foco.value = ""
+                foco.value = ""                           
                 foco.disabled = true
                 btnRead.disabled = true
                 //desativar o botão adicionar
