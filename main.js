@@ -1,25 +1,24 @@
+console.log("processo principal")
+
 const { app, BrowserWindow, Menu, shell, ipcMain, dialog, globalShortcut } = require('electron/main')
 const path = require('node:path')
 
 // Importação do módulo de conexão
 const { conectar, desconectar } = require('./database.js')
 
-// Importação do Schema Clientes da camada model
+// importação do Schema Clientes da camada model
 const clienteModel = require('./src/models/Clientes.js')
 
-// Importação do Schema Fornecedores da camada model
+// importação do Schema Fornecedores da camada model
 const fornecedorModel = require('./src/models/Fornecedores.js')
 
-// Importação do Schema Produtos da camada model
+// importação do Schema Produtos da camada model
 const produtoModel = require('./src/models/Produtos.js')
 
-// Importar biblioteca nativa do JS para manipular arquivos
+//importar fs para trabalhar com os arquivos de imagens
 const fs = require('fs')
 
-// Importar a biblioteca jspdf (instalar antes usando npm i jspdf)
-const { jspdf, default: jsPDF } = require('jspdf')
-
-// Janela principal
+// janela principal
 let win
 function createWindow() {
     win = new BrowserWindow({
@@ -34,6 +33,23 @@ function createWindow() {
     Menu.setApplicationMenu(Menu.buildFromTemplate(template))
 
     win.loadFile('./src/views/index.html')
+
+    // botões
+    ipcMain.on('open-client', () => {
+        clientWindow()
+    })
+
+    ipcMain.on('open-supplier', () => {
+        supplierWindow()
+    })
+
+    ipcMain.on('open-product', () => {
+        productWindow()
+    })
+
+    ipcMain.on('open-report', () => {
+        reportWindow()
+    })
 }
 
 // Janela sobre
@@ -42,8 +58,8 @@ function aboutWindow() {
     let about
     if (main) {
         about = new BrowserWindow({
-            width: 380,
-            height: 225,
+            width: 360,
+            height: 215,
             autoHideMenuBar: true,
             resizable: false,
             minimizable: false,
@@ -140,23 +156,6 @@ function reportWindow() {
     report.loadFile('./src/views/relatorios.html')
 }
 
-// Botões
-ipcMain.on('open-client', () => {
-    clientWindow()
-})
-
-ipcMain.on('open-supplier', () => {
-    supplierWindow()
-})
-
-ipcMain.on('open-product', () => {
-    productWindow()
-})
-
-ipcMain.on('open-report', () => {
-    reportWindow()
-})
-
 app.whenReady().then(() => {
     //registrar atalho global para devtools em qualquer janela ativa
     globalShortcut.register('Ctrl+Shift+I', () => {
@@ -178,13 +177,9 @@ app.whenReady().then(() => {
     // conexão com o banco ao iniciar a aplicação   
     ipcMain.on('db-connect', async (event) => {
         // a linha abaixo estabelece a conexão com o banco
-        const conectado = await conectar()
-        // se conexão for bem sucedida, enviar ao renderizador uma mensagem para trocar o ícone do status do banco de dados (delay de 0.5s para sincronizar)
-        if(conectado) {
-            setTimeout(() => {
-                event.reply('db-message', "conectado")
-            }, 500) //500ms = 0.5s     
-        }           
+        await conectar()
+        // enviar ao renderizador uma mensagem para trocar o ícone do status do banco de dados
+        event.reply('db-message', "conectado")
     })
 
     // desconectar do banco ao encerrar a aplicação
@@ -235,17 +230,22 @@ const template = [
         ]
     },
     {
-        label: 'Relatórios',
+        label: 'Relatórios'
+    },
+    {
+        label: 'Zoom',
         submenu: [
             {
-                label: 'Clientes',
-                click: () => gerarRelatorioClientes()
+                label: 'Aplicar zoom',
+                role: 'zoomIn'
             },
             {
-                label: 'Fornecedores'
+                label: 'Reduzir',
+                role: 'zoomOut'
             },
             {
-                label: 'Produtos'
+                label: 'Restaurar o zoom padrão',
+                role: 'resetZoom'
             }
         ]
     },
@@ -264,26 +264,11 @@ const template = [
     }
 ]
 
-
-/****************************************/
-/************** Validações  *************/
-/****************************************/
-
-ipcMain.on('dialog-search', () => {
-    dialog.showMessageBox({
-        type: 'warning',
-        title: 'Atenção!',
-        message: 'Preencha o campo de busca',
-        buttons: ['OK']
-    })
-})
-
-
 /****************************************/
 /************** Clientes  ***************/
 /****************************************/
 
-// Aviso (pop-up) ao abrir a janela (questão didática caso optar pelo bloqueio/desbloqueio dos inputs)
+// Aviso (pop-up) ao abrir a janela
 ipcMain.on('notice-client', () => {
     dialog.showMessageBox({
         type: 'info',
@@ -330,6 +315,15 @@ ipcMain.on('new-client', async (event, cliente) => {
 
 
 // CRUD Read >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ipcMain.on('dialog-search', () => {
+    dialog.showMessageBox({
+        type: 'warning',
+        title: 'Atenção!',
+        message: 'Preencha um nome no campo de busca',
+        buttons: ['OK']
+    })
+})
+
 ipcMain.on('search-client', async (event, cliNome) => {
     //teste de recebimento do nome do cliente a ser pesquisado(passo 2)
     console.log(cliNome)
@@ -448,53 +442,12 @@ ipcMain.on('url-site', (event, urlSite) => {
     shell.openExternal(url)
 })
 
-// CRUD Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-ipcMain.on('new-supplier', async (event, fornecedor) => {
-    console.log(fornecedor)
-    try {
-        const novoFornecedor = new fornecedorModel({
-            nomeFornecedor: fornecedor.nomeFor,
-            cnpjFornecedor: fornecedor.cnpjFor,
-            siteFornecedor: fornecedor.siteFor
-        })
-        await novoFornecedor.save()
-        dialog.showMessageBox({
-            type: 'info',
-            title: "Aviso",
-            message: "Fornecedor adicionado com sucesso",
-            buttons: ['OK']
-        }).then((result) => {
-            if (result.response === 0) {
-                event.reply('reset-form')
-            }
-        })
-    } catch (error) {
-        //tratamento personalizado em caso de erro
-        //11000 código referente ao erro de campos duplicados no banco (unique)
-        if (error.code = 11000) {
-            dialog.showMessageBox({
-                type: 'error',
-                title: "Atenção!",
-                message: "CNPJ já está cadastrado\nVerifique se digitou corretamente",
-                buttons: ['OK']
-            }).then((result) => {
-                if (result.response === 0) {
-                    //event.reply('')
-                }
-            })
-        } else {
-            console.log(error)
-        }
-    }
-})
-// Fim do CRUD Create <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 /********************************************/
 /**************** Produtos  *****************/
 /********************************************/
 
 // CRUD Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-// Obter o caminho da imagem (executar o open dialog)
 ipcMain.handle('open-file-dialog', async () => {
     const { canceled, filePaths } = await dialog.showOpenDialog({
         title: "Selecionar imagem",
@@ -507,69 +460,58 @@ ipcMain.handle('open-file-dialog', async () => {
         ]
     })
 
-    if (canceled === true || filePaths.length === 0) {
+    if (canceled || filePaths.length === 0) {
         return null
     } else {
-        return filePaths[0] //retorna o caminho do arquivo
+        return filePaths[0]  // Retorna o caminho real do arquivo
     }
-
 })
 
 ipcMain.on('new-product', async (event, produto) => {
-    // teste de recebimento dos dados do produto
-    console.log(produto) // teste do passo 2 (recebimento do produto)
-
-    //Resolução de BUG (quando a imagem não for selecionada)
-    let caminhoImagemSalvo = ""
-
     try {
-        // Correção de BUG (validação de imagem)
-        if (produto.caminhoImagemPro) {
-            //===================================== (imagens #1)
-            // Criar a pasta uploads se não existir
-            //__dirname (caminho absoluto)
-            const uploadDir = path.join(__dirname, 'uploads')
-            if (!fs.existsSync(uploadDir)) {
-                fs.mkdirSync(uploadDir)
-            }
+        console.log(produto)
 
-            //===================================== (imagens #2)
-            // Gerar um nome único para o arquivo (para não sobrescrever)
-            const fileName = `${Date.now()}_${path.basename(produto.caminhoImagemPro)}`
-            //console.log(fileName) // apoio a lógica
-            const uploads = path.join(uploadDir, fileName)
-
-            //===================================== (imagens #3)
-            //Copiar o arquivo de imagem para pasta uploads
-            fs.copyFileSync(produto.caminhoImagemPro, uploads)
-
-            //===================================== (imagens #4)
-            //alterar a variável caminhoImagemSalvo para uploads
-            caminhoImagemSalvo = uploads
-
+        // Criar a pasta de uploads se não existir
+        const uploadsDir = path.join(__dirname, 'uploads')
+        if (!fs.existsSync(uploadsDir)) {
+            fs.mkdirSync(uploadsDir)
         }
-        // Cadastrar o produto no banco de dados
+
+        // Gerar um nome único para o arquivo
+        const fileName = `${Date.now()}_${path.basename(produto.caminhoImagemPro)}`
+        const uploads = path.join(uploadsDir, fileName)
+
+        // Copiar o arquivo da imagem para a pasta uploads
+        fs.copyFileSync(produto.caminhoImagemPro, uploads)
+
+        // Criar um novo produto no banco de dados
         const novoProduto = new produtoModel({
             barcodeProduto: produto.barcodePro,
             nomeProduto: produto.nomePro,
-            caminhoImagemProduto: caminhoImagemSalvo
-        })
+            caminhoImagemProduto: uploads // Salvando o caminho correto no banco
+        });
 
-        // adicionar o produto no banco de dados
         await novoProduto.save()
 
-        // confirmação
         dialog.showMessageBox({
             type: 'info',
-            message: 'Produto cadastrado com sucesso.',
+            title: "Aviso",
+            message: "Produto adicionado com sucesso!",
             buttons: ['OK']
         }).then((result) => {
             if (result.response === 0) {
                 event.reply('reset-form')
             }
         })
+
     } catch (error) {
-        console.log(error)
+        console.error("Erro ao salvar produto:", error)
+        dialog.showMessageBox({
+            type: 'error',
+            title: 'Erro',
+            message: error.message,
+            buttons: ['OK']
+        })
     }
 })
 
@@ -577,180 +519,15 @@ ipcMain.on('new-product', async (event, produto) => {
 
 
 // CRUD Read >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-ipcMain.on('search-product', async (event, barcode) => {
-    console.log(barcode) // teste do passo 2
-    try {
-        // Passos 3 e 4 (fluxo do slide)
-        const dadosProduto = await produtoModel.find({
-            barcodeProduto: barcode
-        })
-        console.log(dadosProduto) //teste Passo 4
-        //validação (se não existir produto cadastrado)
-        if (dadosProduto.length === 0) {
-            dialog.showMessageBox({
-                type: 'warning',
-                title: 'Produtos',
-                message: 'Produto não cadastrado.\nDeseja cadastrar este produto?',
-                defaultId: 0,
-                buttons: ['Sim', 'Não']
-            }).then((result) => {
-                console.log(result)
-                if (result.response === 0) {
-                    //enviar ao renderizador um pedido para setar o código de barras
-                    event.reply('set-barcode')
-                } else {
-                    //enviar ao renderizador um pedido para limpar os campos do formulário
-                    event.reply('reset-form')
-                }
-            })
-        }
-        // Passo 5: fluxo (envio dos dados do produto ao renderizador)
-        event.reply('product-data', JSON.stringify(dadosProduto))
 
-    } catch (error) {
-        console.log(error)
-    }
-})
 // Fim CRUD Read <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
 // CRUD Update >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-ipcMain.on('update-product', async (event, produto) => {
-    console.log(produto) //teste do fluxo (passo2) - slide
 
-    // Correção de BUG (caminho da imagem)
-    // estratégia: se o usuário não trocou a imagem, editar apenas os campos nome do produto e código de barras do produto
-    if (produto.caminhoImagemPro === "") {
-        try {
-            const produtoEditado = await produtoModel.findByIdAndUpdate(
-                produto.idPro, {
-                barcodeProduto: produto.barcodePro,
-                nomeProduto: produto.nomePro
-            },
-                {
-                    new: true
-                }
-            )
-        } catch (error) {
-            console.log(error)
-        }
-    } else {
-        try {
-            const produtoEditado = await produtoModel.findByIdAndUpdate(
-                produto.idPro, {
-                barcodeProduto: produto.barcodePro,
-                nomeProduto: produto.nomePro,
-                caminhoImagemProduto: produto.caminhoImagemPro
-            },
-                {
-                    new: true
-                }
-            )
-        } catch (error) {
-            console.log(error)
-        }
-    }
-
-
-    // confirmação
-    dialog.showMessageBox(product, {
-        type: 'info',
-        message: 'Dados do produto alterados com sucesso.',
-        buttons: ['OK']
-    }).then((result) => {
-        if (result.response === 0) {
-            event.reply('reset-form')
-        }
-    })
-})
 // Fim CRUD Update <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
 // CRUD Delete >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-ipcMain.on('delete-product', async (event, idProduto) => {
-    //teste de recebimento do ID do produto (passo 2)
-    console.log(idProduto)
-    //confirmação de exclusão
-    // confirmação antes de excluir o produto (IMPORTANTE!)
-    // product é a variável ref a janela de produtos
-    const { response } = await dialog.showMessageBox(product, {
-        type: 'warning',
-        buttons: ['Cancelar', 'Excluir'], //[0,1]
-        title: 'Atenção!',
-        message: 'Tem certeza que deseja excluir este produto?'
-    })
-    // apoio a lógica
-    console.log(response)
-    if (response === 1) {
-        //Passo 3 slide
-        try {
-            const produtoExcluido = await produtoModel.findByIdAndDelete(idProduto)
-            dialog.showMessageBox({
-                type: 'info',
-                title: 'Aviso',
-                message: 'Produto excluído com sucesso',
-                buttons: ['OK']
-            })
-            event.reply('reset-form')
-        } catch (error) {
-            console.log(error)
-        }
-    }
-})
+
 // Fim CRUD Delete <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-
-/********************************************/
-/**************** Relatórios ****************/
-/********************************************/
-
-// Relatório de clientes
-async function gerarRelatorioClientes() {
-    try {
-        //listar os clientes por ordem alfabética
-        const clientes = await clienteModel.find().sort({ nomeCliente: 1 })
-        console.log(clientes)
-        //formatação do documento
-        const doc = new jsPDF('p', 'mm', 'a4') // p portrait | l landscape
-        //tamanho da fonte (título)
-        doc.setFontSize(16)
-        //Escrever um texto (título)
-        doc.text("Relatório de clientes", 14, 20) //x, y (mm)
-        //Data
-        const dataAtual = new Date().toLocaleDateString('pt-BR')
-        doc.setFontSize(12)
-        doc.text(`Data: ${dataAtual}`, 160, 10)
-        //variável de apoio para formatação da altura do conteúdo
-        let y = 45
-        doc.text("Nome", 14, y)
-        doc.text("telefone", 80, y)
-        doc.text("E-mail", 130, y)
-        y += 5
-        //desenhar uma linha
-        doc.setLineWidth(0.5) //expessura da linha 
-        doc.line(10, y, 200, y) //inicio, fim
-        y += 10
-        //renderizar os clientes (vetor)
-        clientes.forEach((c) => {
-            //se ultrapassar o limite da folha (A4 = 270mm) adicionar outra página
-            if (y > 250) {
-                doc.addPage()
-                y = 20 //cabeçalho da outra página
-            }
-            doc.text(c.nomeCliente, 14, y)
-            doc.text(c.foneCliente, 80, y)
-            doc.text(c.emailCliente || "N/A", 130, y)
-            y += 10 //quebra de linha
-        })
-
-        //Setar o caminho do arquivo temporário
-        const tempDir = app.getPath('temp')
-        const filePath = path.join(tempDir, 'clientes.pdf') //nome do arquivo
-        //Salvar temporariamente o arquivo
-        doc.save(filePath)
-        //Abrir o arquivo no navegador padrão
-        shell.openPath(filePath)
-    } catch (error) {
-        console.log(error)
-    }
-}
