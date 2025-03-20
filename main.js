@@ -16,6 +16,9 @@ const produtoModel = require('./src/models/Produtos.js')
 // Importar biblioteca nativa do JS para manipular arquivos
 const fs = require('fs')
 
+// Importar a biblioteca jspdf (instalar antes usando npm i jspdf)
+const { jspdf, default: jsPDF } = require('jspdf')
+
 // Janela principal
 let win
 function createWindow() {
@@ -230,7 +233,19 @@ const template = [
         ]
     },
     {
-        label: 'Relatórios'
+        label: 'Relatórios',
+        submenu: [
+            {
+                label: 'Clientes',
+                click: () => gerarRelatorioClientes()
+            },
+            {
+                label: 'Fornecedores'
+            },
+            {
+                label: 'Produtos'
+            }
+        ]
     },
     {
         label: 'Ajuda',
@@ -607,8 +622,8 @@ ipcMain.on('update-product', async (event, produto) => {
         try {
             const produtoEditado = await produtoModel.findByIdAndUpdate(
                 produto.idPro, {
-                    barcodeProduto: produto.barcodePro,
-                    nomeProduto: produto.nomePro                  
+                barcodeProduto: produto.barcodePro,
+                nomeProduto: produto.nomePro
             },
                 {
                     new: true
@@ -621,9 +636,9 @@ ipcMain.on('update-product', async (event, produto) => {
         try {
             const produtoEditado = await produtoModel.findByIdAndUpdate(
                 produto.idPro, {
-                    barcodeProduto: produto.barcodePro,
-                    nomeProduto: produto.nomePro,
-                    caminhoImagemProduto: produto.caminhoImagemPro
+                barcodeProduto: produto.barcodePro,
+                nomeProduto: produto.nomePro,
+                caminhoImagemProduto: produto.caminhoImagemPro
             },
                 {
                     new: true
@@ -634,7 +649,7 @@ ipcMain.on('update-product', async (event, produto) => {
         }
     }
 
-    
+
     // confirmação
     dialog.showMessageBox(product, {
         type: 'info',
@@ -681,3 +696,59 @@ ipcMain.on('delete-product', async (event, idProduto) => {
     }
 })
 // Fim CRUD Delete <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+/********************************************/
+/**************** Relatórios ****************/
+/********************************************/
+
+// Relatório de clientes
+async function gerarRelatorioClientes() {
+    try {
+        //listar os clientes por ordem alfabética
+        const clientes = await clienteModel.find().sort({ nomeCliente: 1 })
+        console.log(clientes)
+        //formatação do documento
+        const doc = new jsPDF('p', 'mm', 'a4') // p portrait | l landscape
+        //tamanho da fonte (título)
+        doc.setFontSize(16)
+        //Escrever um texto (título)
+        doc.text("Relatório de clientes", 14, 20) //x, y (mm)
+        //Data
+        const dataAtual = new Date().toLocaleDateString('pt-BR')
+        doc.setFontSize(12)
+        doc.text(`Data: ${dataAtual}`, 160, 10)
+        //variável de apoio para formatação da altura do conteúdo
+        let y = 45
+        doc.text("Nome", 14, y)
+        doc.text("telefone", 80, y)
+        doc.text("E-mail", 130, y)
+        y += 5
+        //desenhar uma linha
+        doc.setLineWidth(0.5) //expessura da linha 
+        doc.line(10, y, 200, y) //inicio, fim
+        y += 10
+        //renderizar os clientes (vetor)
+        clientes.forEach((c) => {
+            //se ultrapassar o limite da folha (A4 = 270mm) adicionar outra página
+            if (y > 250) {
+                doc.addPage()
+                y = 20 //cabeçalho da outra página
+            }
+            doc.text(c.nomeCliente, 14, y)
+            doc.text(c.foneCliente, 80, y)
+            doc.text(c.emailCliente || "N/A", 130, y)
+            y += 10 //quebra de linha
+        })
+
+        //Setar o caminho do arquivo temporário
+        const tempDir = app.getPath('temp')
+        const filePath = path.join(tempDir, 'clientes.pdf') //nome do arquivo
+        //Salvar temporariamente o arquivo
+        doc.save(filePath)
+        //Abrir o arquivo no navegador padrão
+        shell.openPath(filePath)
+    } catch (error) {
+        console.log(error)
+    }
+}

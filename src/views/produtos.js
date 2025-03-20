@@ -48,7 +48,7 @@ async function uploadImage() {
     console.log(caminhoImagem)
     //correção BUG seleção de imagem
     if (caminhoImagem) {
-        imagem.src = `file://${caminhoImagem}`        
+        imagem.src = `file://${caminhoImagem}`
     }
     btnCreate.focus() //correção de BUG (teclaEnter)
 }
@@ -76,9 +76,9 @@ formProduto.addEventListener('submit', async (event) => {
             barcodePro: barcodeProduto.value,
             nomePro: nomeProduto.value,
             caminhoImagemPro: caminhoImagem ? caminhoImagem : ""
-        }        
+        }
         api.editarProduto(produto)
-    }    
+    }
 })
 // Fim CRUD Create/Update <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -111,6 +111,10 @@ function buscarProduto() {
                 if (p.caminhoImagemProduto) {
                     imagem.src = p.caminhoImagemProduto
                 }
+                //data formatada para pt-BR
+                const dataCadastrada = p.dataCadastro
+                const dataFormatada = new Date(dataCadastrada).toLocaleDateString("pt-BR")
+                document.getElementById('dataProduct').value = dataFormatada
                 //limpar o campo de busca, remover o foco e desativar a busca
                 foco.value = ""
                 foco.disabled = true

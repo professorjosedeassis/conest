@@ -41,7 +41,7 @@
             <div class="col-md-5">
                 <label for="inputBarcodeProduct" class="form-label">Código de barras</label>
                 <input type="text" class="form-control" id="inputBarcodeProduct">
-            </div>            
+            </div>
 
             <div class="row">
                 <!-- Fornecedor -->
@@ -53,24 +53,37 @@
                         <option value="copel">Copel</option>
                     </select>
                 </div>
-            
+
                 <!-- Data -->
                 <div class="mt-3 col-md-3">
                     <label for="dataProduct" class="form-label">Data</label>
                     <input type="text" class="form-control" id="dataProduct" disabled>
-                </div>  
-            
+                </div>
+
                 <!-- Quebra de linha -->
                 <div class="w-100 mt-3"></div>
-            
+
                 <!-- Quantidade -->
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label for="inputAmountProduct" class="form-label">Quantidade</label>
                     <input type="text" class="form-control" id="inputAmountProduct">
                 </div>
-            
+
+                <!-- Unidade de medida -->
+                <div class="col-md-2">
+                    <label for="selectUnit" class="form-label">Unidade</label>
+                    <select class="form-select" id="selectUnit" name="Unidade" required>
+                        <option value="" disabled selected>Tipo:</option>
+                        <option value="">UN</option>
+                        <option value="">PC</option>
+                        <option value="">CX</option>
+                        <option value="">Kg</option>
+                        <option value="">cm</option>
+                    </select>
+                </div>
+
                 <!-- Valor -->
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label for="inputValueProduct" class="form-label">Valor</label>
                     <input type="text" class="form-control" id="inputValueProduct">
                 </div>
@@ -82,7 +95,7 @@
             </div>
 
             <!-- Botões -->
-            <div class="col-12">                
+            <div class="col-12">
                 <button type="submit" class="btn btn-success" id="btnCreate">Adicionar</button>
                 <button type="submit" class="btn btn-warning" id="btnUpdate">Editar</button>
                 <button type="button" class="btn btn-danger" id="btnDelete" onclick="excluirProduto()">Excluir</button>

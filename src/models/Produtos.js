@@ -13,7 +13,11 @@ const produtoSchema = new Schema({
     },
     caminhoImagemProduto: {
         type: String
+    },
+    dataCadastro: {
+        type: Date,
+        default: Date.now
     }
-})
+},{versionKey: false})
 
 module.exports = model('Produto', produtoSchema)
