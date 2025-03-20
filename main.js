@@ -178,11 +178,13 @@ app.whenReady().then(() => {
     // conexão com o banco ao iniciar a aplicação   
     ipcMain.on('db-connect', async (event) => {
         // a linha abaixo estabelece a conexão com o banco
-        await conectar()
-        // enviar ao renderizador uma mensagem para trocar o ícone do status do banco de dados (delay de 0.5s para sincronizar)
-        setTimeout(() => {
-            event.reply('db-message', "conectado")
-        }, 500) //500ms = 0.5s        
+        const conectado = await conectar()
+        // se conexão for bem sucedida, enviar ao renderizador uma mensagem para trocar o ícone do status do banco de dados (delay de 0.5s para sincronizar)
+        if(conectado) {
+            setTimeout(() => {
+                event.reply('db-message', "conectado")
+            }, 500) //500ms = 0.5s     
+        }           
     })
 
     // desconectar do banco ao encerrar a aplicação
