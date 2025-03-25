@@ -19,8 +19,10 @@ const conectar = async () => {
             await mongoose.connect(url)
             conectado = true //sinalizar que o banco está conectado
             console.log("MongoDB conectado")
+            return true
         } catch (error) {
             console.log(`Erro ao conectar ao MongoDB: ${error}`)
+            return false
         }
     }
 }
@@ -33,8 +35,10 @@ const desconectar = async () => {
             await mongoose.disconnect(url)
             conectado = false //sinalizar que o banco não está conectado
             console.log("MongoDB desconectado")
+            return true
         } catch (error) {
             console.log(`Erro ao desconectar do MongoDB: ${error}`)
+            return false
         }
     }
 }

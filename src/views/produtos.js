@@ -41,6 +41,17 @@ let imagem = document.getElementById('imageProductPreview')
 //variável usada para armazenar o caminho da imagem
 let caminhoImagem
 
+//funçao para selecionar um fornecedor e setar o lista (combobox)
+function selecionarFornecedor() {
+    api.buscarFornecedor()
+}
+
+api.listarFornecedor((event, nomeFornecedor) => {
+    console.log(nomeFornecedor) // Verificar os dados recebidos  
+
+   
+})
+
 // CRUD Create/Update >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 // solicitar ao main o uso do explorador de arquivos e armazenar o caminho da imagem selecionada na variável caminhoImagem
 async function uploadImage() {
